@@ -46,10 +46,10 @@ public class UltimaWebService
 				if (par[key] is Array)
 				{
 					paramString += "&" + key + "=[" + string.Join(",", (long[])par[key]) + "]";
-                }
+				}
 				else	 
 					paramString += "&" + key + "=" + par[key].ToString();
-            }
+			}
 		}
 		
 		var webRequest = (HttpWebRequest)WebRequest.Create(string.Format(@"http://localhost:8337/{0}?format=xml{1}", method, paramString));
