@@ -36,7 +36,7 @@ public class UltimaWebService
 		return GetXmlResponse(method, null);
 	}
 
-    public static HttpWebResponse GetWebResponse(string method, IDictionary par )
+	public static HttpWebResponse GetWebResponse(string method, IDictionary par )
 	{
 		string paramString = "";
 		if (par != null)
@@ -57,7 +57,7 @@ public class UltimaWebService
 		webRequest.ContentType = "application/json";
 		webRequest.UserAgent = "Mozilla/5.0 (Windows NT 5.1; rv:28.0) Gecko/20100101 Firefox/28.0";
 		webRequest.ContentLength = 0;
-		string autorization = "bitrix" + ":" + "123";
+		string autorization = "bitrix" + ":" + "bitrix";
 		byte[] binaryAuthorization = System.Text.Encoding.UTF8.GetBytes(autorization);
 		autorization = Convert.ToBase64String(binaryAuthorization);
 		autorization = "Basic " + autorization;
