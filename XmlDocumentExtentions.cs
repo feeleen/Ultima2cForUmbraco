@@ -9,10 +9,22 @@ using System.Xml;
 /// </summary>
 public static class XmlDocumentExtentions
 {
+	public static string uPrefix = "u";
+	
+	public static string GetPrefix(this XmlDocument doc)
+	{
+		return uPrefix;
+	}
+
+	public static string Prefixed(this XmlDocument doc, string name)
+	{
+		return String.Format("{0}:{1}", uPrefix, name);
+    }
+
 	public static XmlNamespaceManager NsMan(this XmlDocument doc)
 	{
 		XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
-		nsmgr.AddNamespace("u", "http://ultimabusinessware.com/types");
+		nsmgr.AddNamespace(uPrefix, "http://ultimabusinessware.com/types");
 		
 		return nsmgr;
     }

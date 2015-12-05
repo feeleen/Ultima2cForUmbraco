@@ -19,6 +19,16 @@ namespace Umbraco
 					action = "GetGood",
 					id = UrlParameter.Optional
 				});
+
+			RouteTable.Routes.MapRoute(
+				"",
+				"goodphoto/{id}",
+				new
+				{
+					controller = "GoodPhotos",
+					action = "GetGoodPhoto",
+					id = UrlParameter.Optional
+				});
 		}
 
 		public void OnApplicationInitialized(

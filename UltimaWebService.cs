@@ -6,16 +6,14 @@ using System.Net;
 using System.Web;
 using System.Xml;
 
-/// <summary>
-/// Summary description for UltimaWebService
-/// </summary>
+
 public class UltimaWebService
 {
+	private static IDictionary<long, byte[]> prodPhotoCache = new Dictionary<long, byte[]>();
+	private static IDictionary<long, XmlDocument> prodInfoCache = new Dictionary<long, XmlDocument>();
+
 	private UltimaWebService()
 	{
-		//
-		// TODO: Add constructor logic here
-		//
 	}
 
 	public static XmlDocument GetXmlResponse(string method, IDictionary par)
@@ -29,6 +27,51 @@ public class UltimaWebService
 	}
 
 
+	public static string GetProductInfo(long goodID, string dataField)
+	{
+		return GetProductInfo(goodID, dataField, true);
+    }
+
+    public static string GetProductInfo(long goodID, string dataField, bool useCache)
+	{
+		XmlDocument doc;
+
+		if (prodInfoCache.ContainsKey(goodID) && useCache)
+		{
+			doc = prodInfoCache[goodID];
+		}
+		else
+		{
+			Hashtable pars = new Hashtable();
+			pars["ProductsIds"] = new long[] { goodID };
+			doc = UltimaWebService.GetXmlResponse("GetProducts", pars);
+			prodInfoCache[goodID] = doc;
+        }
+		XmlNamespaceManager nsmgr = doc.NsMan();
+		
+		return doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductsResponse/{0}:{1}", doc.GetPrefix(), dataField), nsmgr).InnerText;
+    }
+
+	public static byte[] GetProductImage(long goodID)
+	{
+		return GetProductImage(goodID, true);
+    }
+
+    public static byte[] GetProductImage(long goodID, bool useCache)
+	{
+		if (prodPhotoCache.ContainsKey(goodID) && useCache)
+			return prodPhotoCache[goodID];
+
+		Hashtable pars = new Hashtable();
+		pars["ProductIds"] = new long[] { goodID };
+		XmlDocument doc = UltimaWebService.GetXmlResponse("GetProductPhotos", pars);
+		XmlNamespaceManager nsmgr = doc.NsMan();
+
+		string data = doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductPhotosResponse/{0}:Content", doc.GetPrefix()), nsmgr).InnerText;
+		byte[] bytes = Convert.FromBase64String(data);
+		prodPhotoCache[goodID] = bytes;
+        return bytes;
+    }
 
 
 	public static XmlDocument GetXmlResponse(string method)
@@ -36,7 +79,7 @@ public class UltimaWebService
 		return GetXmlResponse(method, null);
 	}
 
-	public static HttpWebResponse GetWebResponse(string method, IDictionary par )
+    public static HttpWebResponse GetWebResponse(string method, IDictionary par )
 	{
 		string paramString = "";
 		if (par != null)
