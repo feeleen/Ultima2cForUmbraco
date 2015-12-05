@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -11,9 +12,22 @@ public class UltimaWebService
 {
 	private static IDictionary<long, byte[]> prodPhotoCache = new Dictionary<long, byte[]>();
 	private static IDictionary<long, XmlDocument> prodInfoCache = new Dictionary<long, XmlDocument>();
+	private static byte[] noImageStub = null;
 
 	private UltimaWebService()
 	{
+	}
+
+	public static byte[] GetNoImageStub()
+	{
+		if (noImageStub != null)
+			return noImageStub;
+
+		Image img = DrawText("No image", SystemFonts.DefaultFont, Color.DarkGray, Color.LightGray);
+		ImageConverter converter = new ImageConverter();
+		noImageStub = (byte[])converter.ConvertTo(img, typeof(byte[]));
+
+		return noImageStub;
 	}
 
 	public static XmlDocument GetXmlResponse(string method, IDictionary par)
@@ -67,11 +81,46 @@ public class UltimaWebService
 		XmlDocument doc = UltimaWebService.GetXmlResponse("GetProductPhotos", pars);
 		XmlNamespaceManager nsmgr = doc.NsMan();
 
-		string data = doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductPhotosResponse/{0}:Content", doc.GetPrefix()), nsmgr).InnerText;
-		byte[] bytes = Convert.FromBase64String(data);
+		byte[] bytes = GetNoImageStub();
+		try
+		{
+			string data = doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductPhotosResponse/{0}:Content", doc.GetPrefix()), nsmgr).InnerText;
+			bytes = Convert.FromBase64String(data);
+		}
+		catch { }
+
 		prodPhotoCache[goodID] = bytes;
-        return bytes;
-    }
+		return bytes;
+	}
+
+	private static Image DrawText(String text, Font font, Color textColor, Color backColor)
+	{
+		Image img = new Bitmap(1, 1);
+		Graphics drawing = Graphics.FromImage(img);
+
+		SizeF textSize = drawing.MeasureString(text, font);
+
+		img.Dispose();
+		drawing.Dispose();
+
+		int width = (int)textSize.Width + 40;
+		int height = width;
+
+		img = new Bitmap(width, width);
+
+		drawing = Graphics.FromImage(img);
+		drawing.Clear(backColor);
+
+		Brush textBrush = new SolidBrush(textColor);
+
+		drawing.DrawString(text, font, textBrush, Convert.ToInt32((width - (int)textSize.Width) / 2), Convert.ToInt32((width - (int)textSize.Height) / 2));
+		drawing.Save();
+
+		textBrush.Dispose();
+		drawing.Dispose();
+
+		return img;
+	}
 
 
 	public static XmlDocument GetXmlResponse(string method)

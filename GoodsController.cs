@@ -25,7 +25,7 @@ namespace Umbraco.Controllers
 
         public ActionResult GetGood()
 		{
-			var goodNodeID = 1082;
+			var goodNodeID = 1084;
 			var content = Umbraco.TypedContent(goodNodeID);
 			if (content == null)
 				throw new System.Exception("Couldn't find any node with id = " + goodNodeID + ". Change goodNodeID value to correct ID of Goods page (see GetGood() method of App_Code/GoodsController.cs file)");
