@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 
@@ -10,35 +11,36 @@ public class SessionBasket
 	{
 	}
 
-	public static Dictionary<int, int> GetBasket()
+	public static Dictionary<int, decimal> GetBasket()
 	{
-		Dictionary<int, int> basket = (Dictionary<int, int>)HttpContext.Current.Session["Basket"];
+		Dictionary<int, decimal> basket = (Dictionary<int, decimal>)HttpContext.Current.Session["Basket"];
 		if (basket == null)
-			basket = new Dictionary<int, int>();
-
+			basket = new Dictionary<int, decimal>();
+		
 		return basket;
 	}
 
-	public static int AddToBasket(int goodID, int quantity)
+	public static decimal AddToBasket(int goodID, decimal quantity, decimal price)
 	{
-		Dictionary<int, int> basket = GetBasket();
-		int newQuantity = GetBasketQuantity(goodID) + quantity;
+		Dictionary<int, decimal> basket = GetBasket();
+		decimal newQuantity = GetBasketQuantity(goodID) + quantity;
 		basket[goodID] = newQuantity;
+		basket[-goodID] = price * newQuantity;
 		SetBasket(basket);
 		return newQuantity;
 	}
 
-	public static int GetBasketQuantity(int goodID)
+	public static decimal GetBasketQuantity(int goodID)
 	{
-		Dictionary<int, int> basket = GetBasket();
-		int quantity = 0;
+		Dictionary<int, decimal> basket = GetBasket();
+		decimal quantity = 0;
 		if (basket.ContainsKey(goodID))
 			quantity = basket[goodID];
 
 		return quantity;
 	}
 
-	public static void SetBasket(Dictionary<int, int> basket)
+	public static void SetBasket(Dictionary<int, decimal> basket)
 	{
 		HttpContext.Current.Session["Basket"] = basket;
 	}

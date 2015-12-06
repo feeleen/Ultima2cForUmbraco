@@ -11,6 +11,7 @@ using System.Xml;
 public class UltimaWebService
 {
 	private static IDictionary<long, byte[]> prodPhotoCache = new Dictionary<long, byte[]>();
+	private static IDictionary<long, decimal> prodPricesCache = new Dictionary<long, decimal>();
 	private static IDictionary<long, XmlDocument> prodInfoCache = new Dictionary<long, XmlDocument>();
 	private static byte[] noImageStub = null;
 	private static CookieContainer cookieCont = new CookieContainer();
@@ -47,7 +48,38 @@ public class UltimaWebService
 		return GetProductInfo(goodID, dataField, true);
     }
 
-    public static string GetProductInfo(long goodID, string dataField, bool useCache)
+
+	public static decimal GetProductPrice(long goodID)
+	{
+		if (prodPricesCache.Count == 0)
+			ReloadProductsPrices();
+
+		if (!prodPricesCache.ContainsKey(goodID))
+			return 0;
+
+		return prodPricesCache[goodID];
+	}
+
+
+    public static int ReloadProductsPrices()
+	{
+		XmlDocument doc;
+
+		Hashtable pars = new Hashtable();
+		pars["CategoryIds"] = new long[] { 1 };
+		pars["ZoneIds"] = new long[] { 1 };
+		doc = UltimaWebService.GetXmlResponse("GetProductPrices", pars);
+		XmlNamespaceManager nsmgr = doc.NsMan();
+
+		foreach (XmlNode node in doc.DocumentElement.SelectNodes(String.Format("{0}:GetProductPricesResponse", doc.GetPrefix()), nsmgr))
+		{
+			prodPricesCache[Convert.ToInt64(node.SelectSingleNode(doc.Prefixed("ProductId"), nsmgr).InnerText)] = Convert.ToDecimal(node.SelectSingleNode(doc.Prefixed("Value"), nsmgr).InnerText);
+		}
+		
+		return prodPricesCache.Count;
+	}
+
+	public static string GetProductInfo(long goodID, string dataField, bool useCache)
 	{
 		XmlDocument doc;
 
