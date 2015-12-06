@@ -13,6 +13,7 @@ public class UltimaWebService
 	private static IDictionary<long, byte[]> prodPhotoCache = new Dictionary<long, byte[]>();
 	private static IDictionary<long, XmlDocument> prodInfoCache = new Dictionary<long, XmlDocument>();
 	private static byte[] noImageStub = null;
+	private static CookieContainer cookieCont = new CookieContainer();
 
 	private UltimaWebService()
 	{
@@ -149,6 +150,8 @@ public class UltimaWebService
 		webRequest.ContentType = "application/json";
 		webRequest.UserAgent = "Mozilla/5.0 (Windows NT 5.1; rv:28.0) Gecko/20100101 Firefox/28.0";
 		webRequest.ContentLength = 0;
+		webRequest.CookieContainer = cookieCont;
+        
 		string autorization = "bitrix" + ":" + "bitrix";
 		byte[] binaryAuthorization = System.Text.Encoding.UTF8.GetBytes(autorization);
 		autorization = Convert.ToBase64String(binaryAuthorization);
@@ -160,7 +163,7 @@ public class UltimaWebService
 		{
 			throw new HttpException((int)webResponse.StatusCode, "Ultima Server returned error " + (int)webResponse.StatusCode);
 		}
-
+		
 		return webResponse;
 	}
 }
