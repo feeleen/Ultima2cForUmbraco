@@ -25,7 +25,7 @@ public class SessionBasket
 		Dictionary<int, decimal> basket = GetBasket();
 		decimal newQuantity = GetBasketQuantity(goodID) + quantity;
 		basket[goodID] = newQuantity;
-		basket[-goodID] = price * newQuantity;
+		basket[-goodID] = price;
 		SetBasket(basket);
 		return newQuantity;
 	}
