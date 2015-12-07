@@ -30,6 +30,33 @@ public class SessionBasket
 		return newQuantity;
 	}
 
+	public static decimal UpdateBasketQuantity(int goodID, decimal newQuantity, decimal price)
+	{
+		Dictionary<int, decimal> basket = GetBasket();
+
+		if (basket.ContainsKey(goodID) && newQuantity == 0)
+		{
+			DeleteFromBasket(goodID);
+			return 0;
+        }
+
+		basket[goodID] = newQuantity;
+		basket[-goodID] = price;
+		SetBasket(basket);
+		return newQuantity;
+	}
+
+	public static void DeleteFromBasket(int goodID)
+	{
+		Dictionary<int, decimal> basket = GetBasket();
+		if (basket.ContainsKey(goodID))
+		{
+			basket.Remove(goodID);
+			basket.Remove(-goodID);
+			SetBasket(basket);
+		}
+	}
+
 	public static decimal GetBasketQuantity(int goodID)
 	{
 		Dictionary<int, decimal> basket = GetBasket();
