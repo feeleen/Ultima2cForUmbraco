@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Web;
 using System.Xml;
 
@@ -156,32 +159,98 @@ public class UltimaWebService
 	}
 
 
-	public static XmlDocument GetXmlResponse(string method)
+	public static bool SignInAgent(string email, string password)
+	{
+		var doc = GetXmlResponse("SignInClientWithEmail", new Hashtable { { "Email", email }, { "Password", password } });
+		XmlNamespaceManager nsmgr = doc.NsMan();
+
+		if (Convert.ToBoolean(doc.DocumentElement.SelectSingleNode(String.Format("{0}:Success", doc.GetPrefix()), nsmgr).InnerText))
+        {
+			return true;
+		}
+		return false;
+	}
+
+
+	// CreateAgent("anonymous@ultima2c.com", "Ivan", "999999999", "test");
+	public static long CreateAgent(string email, string name, string phone, string password, string address)
+	{
+		// first of all we create new default agent for orders (you should change the password!):
+		// http://localhost:8337/CreateClient?format=xml&Email=anonymous@ultima2c.com&FirstName=Anonymous&LastName=None&MiddleName=None&ParentMlmClientId=9&Password=test&Phone=8999999999
+		// then we should sign-in:
+		// http://localhost:8337/SignInClientWithEmail?format=xml&Email=anonymous@ultima2c.com&Password=test
+
+		Hashtable pars = new Hashtable();
+		pars["Email"] = email;
+		pars["FirstName"] = name;
+		pars["LastName"] = address;
+		pars["MiddleName"] = "";
+		pars["ParentMlmClientId"] = 9;
+		pars["Password"] = password;
+		pars["Phone"] = phone;
+
+		XmlDocument doc = GetXmlResponse("CreateClient", pars);
+		XmlNamespaceManager nsmgr = doc.NsMan();
+
+		return Convert.ToInt64(doc.DocumentElement.SelectSingleNode(String.Format("{0}:Id", doc.GetPrefix()), nsmgr).InnerText);
+	}
+
+	public static Dictionary<string, string> CreateReserve()
+	{
+		Dictionary<string, string> res = new Dictionary<string, string>();
+
+		var basket = SessionBasket.GetBasket();
+
+		ArticleInfo[] prodInfo = new ArticleInfo[basket.Where(x => x.Key > 0).Count()];
+
+		int i = 0;
+		foreach (var key in basket.Keys)
+		{
+			if (key > 0)
+			{
+				prodInfo[i] = new ArticleInfo(key, basket[key]);
+				i++;
+			}
+        } 
+
+		Hashtable pars = new Hashtable();
+		pars["Articles"] = prodInfo;
+		pars["ReserveOfficeId"] = 1;
+		pars["ObtainMethod"] = "ownStorePickup"; // some magic hardcoded value in ultima2c..
+
+		XmlDocument doc = GetXmlResponse("CreateReserve", pars);
+		XmlNamespaceManager nsmgr = doc.NsMan();
+
+		string reserveID = doc.DocumentElement.SelectSingleNode(String.Format("{0}:Id", doc.GetPrefix()), nsmgr).InnerText;
+		string deadDate = doc.DocumentElement.SelectSingleNode(String.Format("{0}:DeadDate", doc.GetPrefix()), nsmgr).InnerText;
+
+		return new Dictionary<string, string> { { "Id", reserveID }, { "DeadDate", deadDate } };
+	}
+
+ 	public static XmlDocument GetXmlResponse(string method)
 	{
 		return GetXmlResponse(method, null);
 	}
 
-    public static HttpWebResponse GetWebResponse(string method, IDictionary par )
+	public static HttpWebResponse GetWebResponse(string serviceName, IDictionary par )
 	{
-		string paramString = "";
+		string paramString = "{";
 		if (par != null)
 		{
+			bool first = true;
 			foreach (var key in par.Keys)
 			{
-				if (par[key] is Array)
-				{
-					paramString += "&" + key + "=[" + string.Join(",", (long[])par[key]) + "]";
-				}
-				else	 
-					paramString += "&" + key + "=" + par[key].ToString();
-			}
+				paramString += (first ? "" : ",") + "\"" + key + "\":" + JsonConvert.SerializeObject(par[key], Newtonsoft.Json.Formatting.None);
+				first = false;
+            }
 		}
-		
-		var webRequest = (HttpWebRequest)WebRequest.Create(string.Format(@"http://localhost:8337/{0}?format=xml{1}", method, paramString));
-		webRequest.Method = "GET";
-		webRequest.ContentType = "application/json";
+		paramString += "}";
+
+		var webRequest = (HttpWebRequest)WebRequest.Create(string.Format(@"http://localhost:8337/{0}?format=xml", serviceName));
+		webRequest.Method = "POST";
+		webRequest.ContentType = "text/json";
 		webRequest.UserAgent = "Mozilla/5.0 (Windows NT 5.1; rv:28.0) Gecko/20100101 Firefox/28.0";
-		webRequest.ContentLength = 0;
+		webRequest.ContentLength = Encoding.UTF8.GetBytes(paramString).Length;
 		webRequest.CookieContainer = cookieCont;
         
 		string autorization = "bitrix" + ":" + "bitrix";
@@ -189,7 +258,14 @@ public class UltimaWebService
 		autorization = Convert.ToBase64String(binaryAuthorization);
 		autorization = "Basic " + autorization;
 		webRequest.Headers.Add("AUTHORIZATION", autorization);
-		
+
+		using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
+		{
+			streamWriter.Write(paramString);
+			streamWriter.Flush();
+			streamWriter.Close();
+		}
+
 		var webResponse = (HttpWebResponse)webRequest.GetResponse();
 		if (webResponse.StatusCode != HttpStatusCode.OK)
 		{

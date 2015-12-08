@@ -71,4 +71,9 @@ public class SessionBasket
 	{
 		HttpContext.Current.Session["Basket"] = basket;
 	}
+
+	public static void ClearBasket()
+	{
+		HttpContext.Current.Session["Basket"] = new Dictionary<int, decimal>();
+	}
 }
