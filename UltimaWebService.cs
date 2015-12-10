@@ -28,7 +28,7 @@ public class UltimaWebService
 		if (noImageStub != null)
 			return noImageStub;
 
-		Image img = DrawText("No image", SystemFonts.DefaultFont, Color.DarkGray, Color.LightGray);
+		Image img = DrawText("No image", new Font(FontFamily.GenericSansSerif, 20), Color.DarkGray, Color.LightGray);
 		ImageConverter converter = new ImageConverter();
 		noImageStub = (byte[])converter.ConvertTo(img, typeof(byte[]));
 
@@ -37,8 +37,8 @@ public class UltimaWebService
 
 	public static XmlDocument GetXmlResponse(string method, IDictionary par)
 	{
-		System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-		using (System.Xml.XmlTextReader reader = new System.Xml.XmlTextReader(GetWebResponse(method, par).GetResponseStream()))
+		XmlDocument doc = new XmlDocument();
+		using (XmlTextReader reader = new XmlTextReader(GetWebResponse(method, par).GetResponseStream()))
 		{
 			doc.Load(reader);
 		}
