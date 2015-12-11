@@ -15,7 +15,10 @@ public class SessionBasket
 	{
 		Dictionary<int, decimal> basket = (Dictionary<int, decimal>)HttpContext.Current.Session["Basket"];
 		if (basket == null)
+		{
 			basket = new Dictionary<int, decimal>();
+			SetBasket(basket);
+		}
 		
 		return basket;
 	}
