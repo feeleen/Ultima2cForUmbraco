@@ -271,7 +271,7 @@ public class UltimaWebService
 			var webResponse = (HttpWebResponse)webRequest.GetResponse();
 			if (webResponse.StatusCode != HttpStatusCode.OK)
 			{
-				throw new HttpException((int)webResponse.StatusCode, "Ultima Server returned error " + webResponse.Headers["UltimaErrorText"]);
+				throw new HttpException((int)webResponse.StatusCode, "Ultima Server returned error: " + WebUtility.UrlDecode(webResponse.Headers["UltimaErrorText"]));
 			}
 			return webResponse;
 		}
