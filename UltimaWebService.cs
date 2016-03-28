@@ -171,6 +171,15 @@ public class UltimaWebService
 		return false;
 	}
 
+	public static bool IsClientExists(string email)
+	{
+		Hashtable pars = new Hashtable();
+		pars["Email"] = email;
+		
+		XmlDocument doc = GetXmlResponse("IsClientExists", pars);
+		XmlNamespaceManager nsmgr = doc.NsMan();
+		return Convert.ToBoolean(doc.DocumentElement.SelectSingleNode(String.Format("{0}:Exists", doc.GetPrefix()), nsmgr).InnerText);
+	}
 
 	// CreateAgent("anonymous@ultima2c.com", "Ivan", "999999999", "test");
 	public static long CreateAgent(string email, string name, string phone, string password, string address)
