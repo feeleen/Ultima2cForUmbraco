@@ -18,15 +18,13 @@ More details available at http://feeleen.ru/blog/beta-version-of-a-simple-shop-u
 How to start:
 
 1. Prerequisites
-- Ultima2c (see ultima2c.com)
-- fresh Umbraco installation (with no starter kits installed!)
-
+  - Ultima2c (see ultima2c.com)
+  - fresh Umbraco installation (with no starter kits installed!)
 2. Setup
-1) install package Ultima2cForUmbraco into umbraco 
-2) republish entire site
-3) Go to App_Code folder of Umbraco ad do the following:
-- Change goodPhotoNodeID value in method GetGoodPhoto in GoodPhotosController.cs to real Id's of GoodPhoto node from umbraco Content section;
-- Change goodNodeID value in method GetGood in GoodsController.cs to real Id's of Good node from umbraco Content section;
-
+  1. install package Ultima2cForUmbraco into umbraco 
+  2. republish entire site
+  3. Go to App_Code folder of Umbraco ad do the following:
+    - Change goodPhotoNodeID value in method GetGoodPhoto in GoodPhotosController.cs to real Id's of GoodPhoto node from umbraco Content section;
+    - Change goodNodeID value in method GetGood in GoodsController.cs to real Id's of Good node from umbraco Content section;
 3. You're done! Open your site and use it
 
