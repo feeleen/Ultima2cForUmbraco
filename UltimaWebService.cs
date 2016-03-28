@@ -266,12 +266,21 @@ public class UltimaWebService
 			streamWriter.Close();
 		}
 
-		var webResponse = (HttpWebResponse)webRequest.GetResponse();
-		if (webResponse.StatusCode != HttpStatusCode.OK)
+		try
 		{
-			throw new HttpException((int)webResponse.StatusCode, "Ultima Server returned error " + (int)webResponse.StatusCode);
+			var webResponse = (HttpWebResponse)webRequest.GetResponse();
+			if (webResponse.StatusCode != HttpStatusCode.OK)
+			{
+				throw new HttpException((int)webResponse.StatusCode, "Ultima Server returned error " + webResponse.Headers["UltimaErrorText"]);
+			}
+			return webResponse;
 		}
-		
-		return webResponse;
+		catch (WebException ex)
+		{
+			HttpWebResponse res = (HttpWebResponse)ex.Response; 
+			throw new HttpException((int)res.StatusCode, "Ultima Server error: " + WebUtility.UrlDecode(res.Headers["UltimaErrorText"]), ex);
+		}
+
+
 	}
 }
