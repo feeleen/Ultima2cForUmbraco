@@ -8,8 +8,9 @@ using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
+using System.Web.Configuration;
 
-namespace Umbraco.Controllers
+namespace Ultima.PluginControllers
 {
 	public class GoodPhotosController : PluginController
 	{
@@ -25,10 +26,11 @@ namespace Umbraco.Controllers
 
         public ActionResult GetGoodPhoto()
 		{
-			var goodPhotoNodeID = 1124;
+			var goodPhotoNodeID = WebConfigurationManager.AppSettings[InstallHelpers.GoodPhotoNodeIDKey];
+
 			var content = Umbraco.TypedContent(goodPhotoNodeID);
 			if (content == null)
-				throw new System.Exception("Couldn't find any node with id = " + goodPhotoNodeID + ". Change goodPhotoNodeID value to correct ID of GoodPhoto page (see GetGoodPhoto() method of App_Code/GoodPhotosController.cs file)");
+				throw new System.Exception("Couldn't find any node with id = " + goodPhotoNodeID + ". Change app setting's " + InstallHelpers.GoodPhotoNodeIDKey + " value to correct ID of a GoodPhoto content page)");
 
 			var renderModel = CreateRenderModel(content);
 			return View("File", renderModel);

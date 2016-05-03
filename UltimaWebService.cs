@@ -8,8 +8,9 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
+using System.Web.Configuration;
 using System.Xml;
-
+using Ultima;
 
 public class UltimaWebService
 {
@@ -86,7 +87,7 @@ public class UltimaWebService
 	{
 		XmlDocument doc;
 
-		if (prodInfoCache.ContainsKey(goodID) && useCache)
+		if (useCache && prodInfoCache.ContainsKey(goodID))
 		{
 			doc = prodInfoCache[goodID];
 		}
@@ -95,7 +96,10 @@ public class UltimaWebService
 			Hashtable pars = new Hashtable();
 			pars["ProductsIds"] = new long[] { goodID };
 			doc = UltimaWebService.GetXmlResponse("GetProducts", pars);
-			prodInfoCache[goodID] = doc;
+			if (useCache)
+			{
+				prodInfoCache[goodID] = doc;
+			}
         }
 		XmlNamespaceManager nsmgr = doc.NsMan();
 		
@@ -104,28 +108,45 @@ public class UltimaWebService
 
 	public static byte[] GetProductImage(long goodID)
 	{
-		return GetProductImage(goodID, true);
+		return GetProductImage(goodID, 0, true);
     }
 
-    public static byte[] GetProductImage(long goodID, bool useCache)
+    public static byte[] GetProductImage(long goodID, int viewID, bool useCache)
 	{
-		if (prodPhotoCache.ContainsKey(goodID) && useCache)
+		if (useCache && prodPhotoCache.ContainsKey(goodID))
 			return prodPhotoCache[goodID];
 
+		byte[] bytes = DiskCache.GetImage(goodID, 0, viewID);
+		if (bytes != null)
+			return bytes;
+		else
+			bytes = GetNoImageStub();
+		
 		Hashtable pars = new Hashtable();
 		pars["ProductIds"] = new long[] { goodID };
 		XmlDocument doc = UltimaWebService.GetXmlResponse("GetProductPhotos", pars);
 		XmlNamespaceManager nsmgr = doc.NsMan();
 
-		byte[] bytes = GetNoImageStub();
 		try
 		{
-			string data = doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductPhotosResponse/{0}:Content", doc.GetPrefix()), nsmgr).InnerText;
-			bytes = Convert.FromBase64String(data);
-		}
-		catch { }
+			if (doc.DocumentElement.ChildNodes.Count > 0)
+			{
+				string data = doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductPhotosResponse/{0}:Content", doc.GetPrefix()), nsmgr).InnerText;
+				viewID = Convert.ToInt32(doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductPhotosResponse/{0}:ViewId", doc.GetPrefix()), nsmgr).InnerText);
 
-		prodPhotoCache[goodID] = bytes;
+				bytes = Convert.FromBase64String(data);
+				if (bytes != null)
+					DiskCache.WriteImage(bytes, goodID, 0, viewID);
+			}
+		}
+		catch (Exception ex)
+		{
+			throw new Exception("Error Getting Image", ex);
+		}
+
+		if (useCache)
+			prodPhotoCache[goodID] = bytes;
+
 		return bytes;
 	}
 
@@ -200,7 +221,6 @@ public class UltimaWebService
 
 		XmlDocument doc = GetXmlResponse("CreateClient", pars);
 		XmlNamespaceManager nsmgr = doc.NsMan();
-
 		return Convert.ToInt64(doc.DocumentElement.SelectSingleNode(String.Format("{0}:Id", doc.GetPrefix()), nsmgr).InnerText);
 	}
 
@@ -226,6 +246,7 @@ public class UltimaWebService
 		pars["Articles"] = prodInfo;
 		pars["ReserveOfficeId"] = 1;
 		pars["ObtainMethod"] = "ownStorePickup"; // some magic hardcoded value in ultima2c..
+
 
 		XmlDocument doc = GetXmlResponse("CreateReserve", pars);
 		XmlNamespaceManager nsmgr = doc.NsMan();
@@ -255,7 +276,7 @@ public class UltimaWebService
 		}
 		paramString += "}";
 
-		var webRequest = (HttpWebRequest)WebRequest.Create(string.Format(@"http://localhost:8337/{0}?format=xml", serviceName));
+		var webRequest = (HttpWebRequest)WebRequest.Create(string.Format(@"http://{0}/{1}?format=xml", WebConfigurationManager.AppSettings[InstallHelpers.UltimaWebServiceURL], serviceName));
 		webRequest.Method = "POST";
 		webRequest.ContentType = "text/json";
 		webRequest.UserAgent = "Mozilla/5.0 (Windows NT 5.1; rv:28.0) Gecko/20100101 Firefox/28.0";

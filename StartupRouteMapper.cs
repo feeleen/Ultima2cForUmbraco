@@ -4,7 +4,7 @@ using Umbraco.Core;
 
 namespace Umbraco
 {
-	public class MyStartupHandler : IApplicationEventHandler
+	public class StartupRouteMapper : IApplicationEventHandler
 	{
 		public void OnApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
 		{

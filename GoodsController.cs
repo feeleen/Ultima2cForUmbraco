@@ -8,8 +8,9 @@ using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Models;
 using Umbraco.Web.Mvc;
+using System.Web.Configuration;
 
-namespace Umbraco.Controllers
+namespace Ultima.PluginControllers
 {
 	public class GoodsController : PluginController
 	{
@@ -25,10 +26,11 @@ namespace Umbraco.Controllers
 
         public ActionResult GetGood()
 		{
-			var goodNodeID = 1084;
+			var goodNodeID = WebConfigurationManager.AppSettings[InstallHelpers.GoodNodeIDKey];
+
 			var content = Umbraco.TypedContent(goodNodeID);
 			if (content == null)
-				throw new System.Exception("Couldn't find any node with id = " + goodNodeID + ". Change goodNodeID value to correct ID of Goods page (see GetGood() method of App_Code/GoodsController.cs file)");
+				throw new System.Exception("Couldn't find any node with id = " + goodNodeID + ". Change app setting's " + InstallHelpers.GoodNodeIDKey + " value to correct ID of a Good content page)");
 
 			var renderModel = CreateRenderModel(content);
 			return View("Good", renderModel);
