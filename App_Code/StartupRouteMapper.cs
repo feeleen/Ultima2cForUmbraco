@@ -15,8 +15,18 @@ namespace Umbraco
 				"good/{id}",
 				new
 				{
-					controller = "Goods",
+					controller = "Route",
 					action = "GetGood",
+					id = UrlParameter.Optional
+				});
+
+			RouteTable.Routes.MapRoute(
+				"",
+				"goods/{id}",
+				new
+				{
+					controller = "Route",
+					action = "GetCategory",
 					id = UrlParameter.Optional
 				});
 
@@ -25,7 +35,7 @@ namespace Umbraco
 				"goodphoto/{id}",
 				new
 				{
-					controller = "GoodPhotos",
+					controller = "Route",
 					action = "GetGoodPhoto",
 					id = UrlParameter.Optional
 				});

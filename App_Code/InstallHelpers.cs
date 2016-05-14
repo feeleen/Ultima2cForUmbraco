@@ -20,6 +20,7 @@ namespace Ultima
 		public const string AppSettingKey = "Ultima.StartupInstalled";
 		public const string GoodNodeIDKey = "Ultima.GoodNodeID";
 		public const string GoodPhotoNodeIDKey = "Ultima.GoodPhotoNodeID";
+		public const string CategoryNodeIDKey = "Ultima.CategoryNodeID";
 		public const string UltimaWebServiceURL = "Ultima.WebServiceURL";
 
 		public static void PublishContentNodes()
@@ -83,6 +84,7 @@ namespace Ultima
 			ConfigurationManager.AppSettings.Remove(InstallHelpers.AppSettingKey);
 			ConfigurationManager.AppSettings.Remove(InstallHelpers.GoodNodeIDKey);
 			ConfigurationManager.AppSettings.Remove(InstallHelpers.GoodPhotoNodeIDKey);
+			ConfigurationManager.AppSettings.Remove(InstallHelpers.CategoryNodeIDKey);
 			ConfigurationManager.AppSettings.Remove(InstallHelpers.UltimaWebServiceURL);
 		}
 
@@ -104,6 +106,12 @@ namespace Ultima
 				webConfig.AppSettings.Settings.Add(InstallHelpers.GoodPhotoNodeIDKey, node.Id.ToString());
 			}
 
+			node = cs.GetRootContent().FirstOrDefault().Descendants().Where(x => x.Name == "Goods").FirstOrDefault();
+
+			if (node != null)
+			{
+				webConfig.AppSettings.Settings.Add(InstallHelpers.CategoryNodeIDKey, node.Id.ToString());
+			}
 
 			//All done installing our custom stuff
 			//As we only want this to run once - not every startup of Umbraco

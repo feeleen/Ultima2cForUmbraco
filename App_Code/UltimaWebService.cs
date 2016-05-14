@@ -18,6 +18,7 @@ public class UltimaWebService
 	private static IDictionary<long, decimal> prodPricesCache = new Dictionary<long, decimal>();
 	private static IDictionary<long, XmlDocument> prodInfoCache = new Dictionary<long, XmlDocument>();
 	private static byte[] noImageStub = null;
+	private static List<CCategory> rootCategoriesCache = null;
 	private static CookieContainer cookieCont = new CookieContainer();
 
 	private UltimaWebService()
@@ -48,11 +49,10 @@ public class UltimaWebService
 
 	public static string GetTextResponse(string method, IDictionary par)
 	{
-		using (var reader = new StreamReader(GetWebResponse(method, par).GetResponseStream(), Encoding.UTF8))
+		using (var reader = new StreamReader(GetWebResponse(method, "json", par).GetResponseStream(), Encoding.UTF8))
 		{
 			return reader.ReadToEnd();
 		}
-		return "";
 	}
 
 
@@ -138,8 +138,18 @@ public class UltimaWebService
 
 	public static List<CCategory> GetRootCategories(int langid)
 	{
-		List<CCategory> cats = JsonConvert.DeserializeObject<List<CCategory>>(GetTextResponse("GetRootCategories", new Hashtable()));
-		return cats;
+		return GetRootCategories(langid, true);
+	}
+
+	public static List<CCategory> GetRootCategories(int langid, bool useCache)
+	{
+		if (useCache && rootCategoriesCache != null)
+			return rootCategoriesCache;
+
+		Hashtable pars = new Hashtable();
+		pars["langid"] = langid;
+		rootCategoriesCache = JsonConvert.DeserializeObject<List<CCategory>>(GetTextResponse("GetRootCategories", pars));
+		return rootCategoriesCache;
 	}
 
 	
