@@ -16,7 +16,9 @@ public class UltimaWebService
 {
 	private static IDictionary<long, byte[]> prodPhotoCache = new Dictionary<long, byte[]>();
 	private static IDictionary<long, decimal> prodPricesCache = new Dictionary<long, decimal>();
-	private static IDictionary<long, XmlDocument> prodInfoCache = new Dictionary<long, XmlDocument>();
+	private static IDictionary<long, XmlDocument> prodInfoCacheXML = new Dictionary<long, XmlDocument>();
+	private static IDictionary<int, CProductInfo> prodInfoCache = new Dictionary<int, CProductInfo>();
+
 	private static byte[] noImageStub = null;
 	private static List<CCategory> rootCategoriesCache = null;
 	private static CookieContainer cookieCont = new CookieContainer();
@@ -86,7 +88,11 @@ public class UltimaWebService
 
 		foreach (XmlNode node in doc.DocumentElement.SelectNodes(String.Format("{0}:GetProductPricesResponse", doc.GetPrefix()), nsmgr))
 		{
-			prodPricesCache[Convert.ToInt64(node.SelectSingleNode(doc.Prefixed("ProductId"), nsmgr).InnerText)] = Convert.ToDecimal(node.SelectSingleNode(doc.Prefixed("Value"), nsmgr).InnerText);
+			try
+			{
+				prodPricesCache[Convert.ToInt64(node.SelectSingleNode(doc.Prefixed("ProductId"), nsmgr).InnerText)] = Convert.ToDecimal(node.SelectSingleNode(doc.Prefixed("Value"), nsmgr).InnerText);
+			}
+			catch { }
 		}
 		
 		return prodPricesCache.Count;
@@ -96,9 +102,9 @@ public class UltimaWebService
 	{
 		XmlDocument doc;
 
-		if (useCache && prodInfoCache.ContainsKey(goodID))
+		if (useCache && prodInfoCacheXML.ContainsKey(goodID))
 		{
-			doc = prodInfoCache[goodID];
+			doc = prodInfoCacheXML[goodID];
 		}
 		else
 		{
@@ -107,7 +113,7 @@ public class UltimaWebService
 			doc = UltimaWebService.GetXmlResponse("GetProducts", pars);
 			if (useCache)
 			{
-				prodInfoCache[goodID] = doc;
+				prodInfoCacheXML[goodID] = doc;
 			}
         }
 		XmlNamespaceManager nsmgr = doc.NsMan();
@@ -152,7 +158,24 @@ public class UltimaWebService
 		return rootCategoriesCache;
 	}
 
-	
+	public static CProductInfo GetProductInfo(int prodId)
+	{
+		return GetProductInfo(prodId, -1, true);
+	}
+
+	public static CProductInfo GetProductInfo(int prodId, int langid, bool useCache)
+	{
+		if (useCache && prodInfoCache != null && prodInfoCache.ContainsKey(prodId))
+			return prodInfoCache[prodId];
+
+		Hashtable pars = new Hashtable();
+		pars["prodid"] = prodId;
+		pars["langid"] = langid;
+		CProductInfo pi = JsonConvert.DeserializeObject<CProductInfo>(GetTextResponse("GetProductInfo", pars));
+		prodInfoCache[prodId] = pi;
+		return pi;
+	}
+
 	public static byte[] GetProductImage(long goodID)
 	{
 		return GetProductImage(goodID, 0, true);
@@ -353,14 +376,14 @@ public class UltimaWebService
 			var webResponse = (HttpWebResponse)webRequest.GetResponse();
 			if (webResponse.StatusCode != HttpStatusCode.OK)
 			{
-				throw new HttpException((int)webResponse.StatusCode, "Ultima Server returned error: " + WebUtility.UrlDecode(webResponse.Headers["UltimaErrorText"]));
+				throw new Exception("Ultima Server returned error: " + WebUtility.UrlDecode(webResponse.Headers["UltimaErrorText"] + ", StatusCode: " + (int)webResponse.StatusCode));
 			}
 			return webResponse;
 		}
 		catch (WebException ex)
 		{
 			HttpWebResponse res = (HttpWebResponse)ex.Response; 
-			throw new HttpException((int)res.StatusCode, "Ultima Server error: " + WebUtility.UrlDecode(res.Headers["UltimaErrorText"]), ex);
+			throw new Exception("Ultima Server error: " + WebUtility.UrlDecode(res.Headers["UltimaErrorText"] + " (" + ex.Message + ", " + webRequest.RequestUri + "), StatusCode: " + (int)res.StatusCode), ex);
 		}
 
 

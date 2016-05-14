@@ -46,6 +46,20 @@ public class CProduct
 	public int ProdId { get; set; }
 }
 
+public class CProductExt
+{
+	public int BrandId { get; set; }
+	public int CategoryId { get; set; }
+	public DateTime CreationDate { get; set; }
+	public int Id { get; set; }
+	public string Name { get; set; }
+	public int OriginalProductId { get; set; }
+	public int Volume { get; set; }
+	public int WarrantyPeriod { get; set; }
+	public int WarrantyPeriodUnitId { get; set; }
+	public int Weight { get; set; }
+}
+
 public class CCatalog
 {
 	public List<CBrand> Brands { get; set; }
@@ -55,4 +69,28 @@ public class CCatalog
 	public int PriceMax { get; set; }
 	public int PriceMin { get; set; }
 	public List<CProduct> Products { get; set; }
+}
+
+public class CPhoto
+{
+	public int Order { get; set; }
+	public string PhotoId { get; set; }
+	public DateTime PhotoMark { get; set; }
+}
+
+public class CProperty
+{
+	public int Kind { get; set; }
+	public string Name { get; set; }
+	public int PropId { get; set; }
+	public int Type { get; set; }
+	public string Value { get; set; }
+}
+
+public class CProductInfo
+{
+	public string Name { get; set; }
+	public List<CPhoto> Photos { get; set; }
+	public int ProdId { get; set; }
+	public List<CProperty> Properties { get; set; }
 }
