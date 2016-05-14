@@ -46,6 +46,15 @@ public class UltimaWebService
 		return doc;
 	}
 
+	public static string GetTextResponse(string method, IDictionary par)
+	{
+		using (var reader = new StreamReader(GetWebResponse(method, par).GetResponseStream(), Encoding.UTF8))
+		{
+			return reader.ReadToEnd();
+		}
+		return "";
+	}
+
 
 	public static string GetProductInfo(long goodID, string dataField)
 	{
@@ -106,6 +115,34 @@ public class UltimaWebService
 		return doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductsResponse/{0}:{1}", doc.GetPrefix(), dataField), nsmgr).InnerText;
     }
 
+	public static CCatalog GetCatalog(int langid, int CategoryId, string SortField, string SortOrder, int PageSize, int PageNo,
+		int SearchQuery, int? BrandId, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CFilter> filter)
+	{
+		Hashtable pars = new Hashtable();
+		pars["langid"] = langid;
+		pars["CategoryId"] = CategoryId;
+		pars["SortField"] = SortField;
+		pars["SortOrder"] = SortOrder;
+		pars["PageSize"] = PageSize;
+		pars["PageNo"] = PageNo;
+		pars["SearchQuery"] = SearchQuery;
+		pars["BrandId"] = BrandId;
+		pars["PriceFrom"] = PriceFrom;
+		pars["PriceTo"] = PriceTo;
+		pars["Availablity"] = Availablity;
+		pars["Filter"] = filter;
+
+		CCatalog cat = JsonConvert.DeserializeObject<CCatalog>(GetTextResponse("GetCatalog", pars));
+		return cat;
+	}
+
+	public static List<CCategory> GetRootCategories(int langid)
+	{
+		List<CCategory> cats = JsonConvert.DeserializeObject<List<CCategory>>(GetTextResponse("GetRootCategories", new Hashtable()));
+		return cats;
+	}
+
+	
 	public static byte[] GetProductImage(long goodID)
 	{
 		return GetProductImage(goodID, 0, true);
@@ -262,7 +299,12 @@ public class UltimaWebService
 		return GetXmlResponse(method, null);
 	}
 
-	public static HttpWebResponse GetWebResponse(string serviceName, IDictionary par )
+	public static HttpWebResponse GetWebResponse(string serviceName, IDictionary par)
+	{
+		return GetWebResponse(serviceName, "xml", par);
+	}
+
+	public static HttpWebResponse GetWebResponse(string serviceName, string format, IDictionary par )
 	{
 		string paramString = "{";
 		if (par != null)
@@ -276,7 +318,7 @@ public class UltimaWebService
 		}
 		paramString += "}";
 
-		var webRequest = (HttpWebRequest)WebRequest.Create(string.Format(@"http://{0}/{1}?format=xml", WebConfigurationManager.AppSettings[InstallHelpers.UltimaWebServiceURL], serviceName));
+		var webRequest = (HttpWebRequest)WebRequest.Create(string.Format(@"http://{0}/{1}?format={2}", WebConfigurationManager.AppSettings[InstallHelpers.UltimaWebServiceURL], serviceName, format));
 		webRequest.Method = "POST";
 		webRequest.ContentType = "text/json";
 		webRequest.UserAgent = "Mozilla/5.0 (Windows NT 5.1; rv:28.0) Gecko/20100101 Firefox/28.0";
