@@ -9,14 +9,23 @@ using System.Web;
 public class SessionErrors
 {
 	public const string Key = "CurrentErrors";
-
+	private object lockObj = new object();
 	private List<string> ErrorsList { set; get; }
+	public IReadOnlyCollection<string> List
+	{
+		get {
+			return SessionErrors.Current.ErrorsList.AsReadOnly();
+		}
+	}
 
 	public static void Add(string error)
 	{
 		SessionErrors err = Current;
-		err.ErrorsList.Add(error);
-		err.Update();
+		lock (err.lockObj)
+		{
+			err.ErrorsList.Add(error);
+			err.Update();
+		}
 	}
 
 	private SessionErrors()
@@ -26,7 +35,7 @@ public class SessionErrors
 
 	private void Update()
 	{
-		HttpContext.Current.Session[Key] = ErrorsList;
+		HttpContext.Current.Session[Key] = this;
 	}
 
 	public static SessionErrors Current
