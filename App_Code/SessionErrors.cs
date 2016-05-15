@@ -33,6 +33,16 @@ public class SessionErrors
 		ErrorsList = new List<string>();
 	}
 
+	public static void Reset()
+	{
+		SessionErrors err = Current;
+		lock (err.lockObj)
+		{
+			err.ErrorsList = new List<string>();
+			HttpContext.Current.Session.Remove(Key);
+		}
+	}
+
 	private void Update()
 	{
 		HttpContext.Current.Session[Key] = this;
