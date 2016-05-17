@@ -23,6 +23,7 @@ public class UltimaWebService
 	private static List<CCategory> rootCategoriesCache = null;
 	private static CookieContainer cookieCont = new CookieContainer();
 
+
 	private UltimaWebService()
 	{
 	}
@@ -122,7 +123,7 @@ public class UltimaWebService
     }
 
 	public static CCatalog GetCatalog(int langid, int CategoryId, string SortField, string SortOrder, int PageSize, int PageNo,
-		int SearchQuery, int? BrandId, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CFilter> filter)
+		string SearchQuery, int? BrandId, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CFilter> filter)
 	{
 		Hashtable pars = new Hashtable();
 		pars["langid"] = langid;
@@ -171,7 +172,7 @@ public class UltimaWebService
 		Hashtable pars = new Hashtable();
 		pars["prodid"] = prodId;
 		pars["langid"] = langid;
-		CProductInfo pi = JsonConvert.DeserializeObject<CProductInfo>(GetTextResponse("GetProductInfo", pars));
+		CProductInfo pi = JsonConvert.DeserializeObject<CProductInfo>(GetTextResponse("GetProfuctInfo", pars));
 		prodInfoCache[prodId] = pi;
 		return pi;
 	}
@@ -374,16 +375,14 @@ public class UltimaWebService
 		try
 		{
 			var webResponse = (HttpWebResponse)webRequest.GetResponse();
-			if (webResponse.StatusCode != HttpStatusCode.OK)
-			{
-				throw new Exception("Ultima Server returned error: " + WebUtility.UrlDecode(webResponse.Headers["UltimaErrorText"] + ", StatusCode: " + (int)webResponse.StatusCode));
-			}
 			return webResponse;
 		}
 		catch (WebException ex)
 		{
-			HttpWebResponse res = (HttpWebResponse)ex.Response; 
-			throw new Exception("Ultima Server error: " + WebUtility.UrlDecode(res.Headers["UltimaErrorText"] + " (" + ex.Message + ", " + webRequest.RequestUri + "), StatusCode: " + (int)res.StatusCode), ex);
+			HttpWebResponse res = (HttpWebResponse)ex.Response;
+			string msg = "Ultima Server error: " + WebUtility.UrlDecode(res.Headers["UltimaErrorText"] + " (" + ex.Message + ", " + webRequest.RequestUri + "), StatusCode: " + (int)res.StatusCode);
+			SessionErrors.Add(msg);
+			throw new Exception(msg, ex);
 		}
 
 

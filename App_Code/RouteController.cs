@@ -24,7 +24,7 @@ namespace Ultima.PluginControllers
 		{
 		}
 
-        public ActionResult GetGood()
+        public ActionResult GetGood(int id = -1)
 		{
 			var goodNodeID = WebConfigurationManager.AppSettings[InstallHelpers.GoodNodeIDKey];
 
@@ -33,10 +33,17 @@ namespace Ultima.PluginControllers
 				throw new System.Exception("Couldn't find any node with id = " + goodNodeID + ". Change app setting's " + InstallHelpers.GoodNodeIDKey + " value to correct ID of a Good content page)");
 
 			var renderModel = CreateRenderModel(content);
-			return View("Good", renderModel);
+			ViewResult v = View("Good", renderModel);
+			v.ViewData["GoodID"] = id;
+			try
+			{
+				v.ViewData["good"] = UltimaWebService.GetProductInfo(id);
+			}
+			catch { }
+			return v;
 		}
 
-		public ActionResult GetGoodPhoto()
+		public ActionResult GetGoodPhoto(int id = -1)
 		{
 			var goodPhotoNodeID = WebConfigurationManager.AppSettings[InstallHelpers.GoodPhotoNodeIDKey];
 
@@ -48,7 +55,7 @@ namespace Ultima.PluginControllers
 			return View("File", renderModel);
 		}
 
-		public ActionResult GetCategory()
+		public ActionResult GetCategory(int id = -1)
 		{
 			var categoryNodeID = WebConfigurationManager.AppSettings[InstallHelpers.CategoryNodeIDKey];
 
@@ -56,8 +63,11 @@ namespace Ultima.PluginControllers
 			if (content == null)
 				throw new System.Exception("Couldn't find any node with id = " + categoryNodeID + ". Change app setting's " + InstallHelpers.CategoryNodeIDKey + " value to correct ID of a Category content page)");
 
+			RouteData.DataTokens["CategoryID"] = id;
 			var renderModel = CreateRenderModel(content);
-			return View("Goods", renderModel);
+			ViewResult v = View("Goods", renderModel);
+			v.ViewData["CategoryID"] = id;
+			return v;
 		}
 
 		private RenderModel CreateRenderModel(IPublishedContent content)

@@ -3,6 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
+
+public struct Availability
+{
+	public const string Onstock = "onstock";
+	public const string Outofstock = "outofstock";
+}
+
+public struct SortOrder
+{
+	public const string Asc = "asc";
+	public const string Desc = "desc";
+}
+
+public struct SortField
+{
+	public const string Name = "name";
+	public const string Price = "price";
+}
+
+
+
+
 public class CCategory
 {
 	public int CategoryId { get; set; }
