@@ -399,7 +399,7 @@ public class UltimaWebService
 		catch (WebException ex)
 		{
 			HttpWebResponse res = (HttpWebResponse)ex.Response;
-			string msg = "Ultima Server error: " + WebUtility.UrlDecode(res.Headers["UltimaErrorText"] + " (" + ex.Message + ", " + webRequest.RequestUri + "), StatusCode: " + (int)res.StatusCode);
+			string msg = "Ultima Server error: " + WebUtility.UrlDecode(res.Headers["UltimaErrorText"] + " (" + ex.Message + ", " + webRequest.RequestUri + ", param: " + paramString + "), StatusCode: " + (int)res.StatusCode);
 			SessionErrors.Add(msg);
 			throw new Exception(msg, ex);
 		}

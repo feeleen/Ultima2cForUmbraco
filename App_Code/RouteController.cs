@@ -35,11 +35,14 @@ namespace Ultima.PluginControllers
 			var renderModel = CreateRenderModel(content);
 			ViewResult v = View("Good", renderModel);
 			v.ViewData["GoodID"] = id;
-			try
+			if (id > -1)
 			{
-				v.ViewData["good"] = UltimaWebService.GetProductInfo(id);
+				try
+				{
+					v.ViewData["good"] = UltimaWebService.GetProductInfo(id);
+				}
+				catch { }
 			}
-			catch { }
 			return v;
 		}
 
@@ -67,11 +70,14 @@ namespace Ultima.PluginControllers
 			var renderModel = CreateRenderModel(content);
 			ViewResult v = View("Goods", renderModel);
 			v.ViewData["CategoryID"] = id;
-			try
+			if (id > -1)
 			{
-				v.ViewData["category"] = UltimaWebService.GetCategoryInfo(id);
+				try
+				{
+					v.ViewData["category"] = UltimaWebService.GetCategoryInfo(id);
+				}
+				catch { }
 			}
-			catch { }
 			return v;
 		}
 
