@@ -18,6 +18,7 @@ public class UltimaWebService
 	private static IDictionary<long, decimal> prodPricesCache = new Dictionary<long, decimal>();
 	private static IDictionary<long, XmlDocument> prodInfoCacheXML = new Dictionary<long, XmlDocument>();
 	private static IDictionary<int, CProductInfo> prodInfoCache = new Dictionary<int, CProductInfo>();
+	private static IDictionary<int, CCategory> catInfoCache = new Dictionary<int, CCategory>();
 
 	private static byte[] noImageStub = null;
 	private static List<CCategory> rootCategoriesCache = null;
@@ -174,6 +175,24 @@ public class UltimaWebService
 		pars["langid"] = langid;
 		CProductInfo pi = JsonConvert.DeserializeObject<CProductInfo>(GetTextResponse("GetProductInfo", pars));
 		prodInfoCache[prodId] = pi;
+		return pi;
+	}
+
+	public static CCategory GetCategoryInfo(int catId)
+	{
+		return GetCategoryInfo(catId, -1, true);
+	}
+
+	public static CCategory GetCategoryInfo(int catId, int langid, bool useCache)
+	{
+		if (useCache && catInfoCache != null && catInfoCache.ContainsKey(catId))
+			return catInfoCache[catId];
+
+		Hashtable pars = new Hashtable();
+		pars["catid"] = catId;
+		pars["langid"] = langid;
+		CCategory pi = JsonConvert.DeserializeObject<CCategory>(GetTextResponse("GetCategoryInfo", pars));
+		catInfoCache[catId] = pi;
 		return pi;
 	}
 

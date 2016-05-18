@@ -30,6 +30,7 @@ public class CCategory
 	public int CategoryId { get; set; }
 	public string Category { get; set; }
 	public string CategoryAlias { get; set; }
+	public string BuyName { get; set; }
 }
 
 public class CBrand

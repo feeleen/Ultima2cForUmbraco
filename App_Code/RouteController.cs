@@ -67,6 +67,11 @@ namespace Ultima.PluginControllers
 			var renderModel = CreateRenderModel(content);
 			ViewResult v = View("Goods", renderModel);
 			v.ViewData["CategoryID"] = id;
+			try
+			{
+				v.ViewData["category"] = UltimaWebService.GetCategoryInfo(id);
+			}
+			catch { }
 			return v;
 		}
 
