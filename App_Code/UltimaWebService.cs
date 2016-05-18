@@ -19,7 +19,8 @@ public class UltimaWebService
 	private static IDictionary<long, XmlDocument> prodInfoCacheXML = new Dictionary<long, XmlDocument>();
 	private static IDictionary<int, CProductInfo> prodInfoCache = new Dictionary<int, CProductInfo>();
 	private static IDictionary<int, CCategory> catInfoCache = new Dictionary<int, CCategory>();
-	private static IDictionary<int, List<CCategory>> breadCrumbsCache = new Dictionary<int, List<CCategory>>();
+	private static IDictionary<int?, List<CCategory>> breadCrumbsCache = new Dictionary<int?, List<CCategory>>();
+	private static IDictionary<int?, List<CCategory>> breadCrumbsProductCache = new Dictionary<int?, List<CCategory>>();
 
 	private static byte[] noImageStub = null;
 	private static List<CCategory> rootCategoriesCache = null;
@@ -125,7 +126,7 @@ public class UltimaWebService
     }
 
 	public static CCatalog GetCatalog(int langid, int CategoryId, string SortField, string SortOrder, int PageSize, int PageNo,
-		string SearchQuery, int? BrandId, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CFilter> filter)
+		string SearchQuery, int?[] BrandId, string[] BrandNames, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CFilter> filter)
 	{
 		Hashtable pars = new Hashtable();
 		pars["langid"] = langid;
@@ -138,8 +139,9 @@ public class UltimaWebService
 		pars["BrandId"] = BrandId;
 		pars["PriceFrom"] = PriceFrom;
 		pars["PriceTo"] = PriceTo;
-		pars["Availablity"] = Availablity;
+		pars["Availability"] = Availablity;
 		pars["Filter"] = filter;
+		pars["BrandNames"] = BrandNames;
 
 		string resp = GetTextResponse("GetCatalog", pars);
 		SessionTrace.Add(resp);
@@ -165,16 +167,32 @@ public class UltimaWebService
 	}
 
 
-	public static List<CCategory> GetCategoryBreadCrumbs(int langid, int catId, bool useCache = true)
+	public static List<CCategory> GetCategoryBreadCrumbs(int langid, int? prodId, int? catId, bool useCache = true)
 	{
-		if (useCache && breadCrumbsCache != null && breadCrumbsCache.ContainsKey(catId) && breadCrumbsCache[catId]!= null)
-			return breadCrumbsCache[catId];
-
+		if (useCache)
+		{
+			if (prodId != null && breadCrumbsProductCache != null && breadCrumbsProductCache.ContainsKey(prodId) && breadCrumbsProductCache[prodId] != null)
+			{
+				return breadCrumbsProductCache[prodId];
+			}
+			else if (catId != null && breadCrumbsCache != null && breadCrumbsCache.ContainsKey(catId) && breadCrumbsCache[catId] != null)
+			{ 
+				return breadCrumbsCache[catId];
+			}
+		}
 		Hashtable pars = new Hashtable();
 		pars["langid"] = langid;
 		pars["catid"] = catId;
+		pars["prodid"] = prodId;
 		List<CCategory> crumbs = JsonConvert.DeserializeObject<List<CCategory>>(GetTextResponse("GetCategoryBreadCrumbs", pars));
-		breadCrumbsCache[catId] = crumbs;
+		if (catId != null)
+		{
+			breadCrumbsCache[catId] = crumbs;
+		}
+		if (prodId != null)
+		{
+			breadCrumbsProductCache[prodId] = crumbs;
+		}
 		return crumbs;
 	}
 
