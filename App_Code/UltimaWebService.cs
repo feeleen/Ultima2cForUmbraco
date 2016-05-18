@@ -19,6 +19,7 @@ public class UltimaWebService
 	private static IDictionary<long, XmlDocument> prodInfoCacheXML = new Dictionary<long, XmlDocument>();
 	private static IDictionary<int, CProductInfo> prodInfoCache = new Dictionary<int, CProductInfo>();
 	private static IDictionary<int, CCategory> catInfoCache = new Dictionary<int, CCategory>();
+	private static IDictionary<int, List<CCategory>> breadCrumbsCache = new Dictionary<int, List<CCategory>>();
 
 	private static byte[] noImageStub = null;
 	private static List<CCategory> rootCategoriesCache = null;
@@ -140,7 +141,10 @@ public class UltimaWebService
 		pars["Availablity"] = Availablity;
 		pars["Filter"] = filter;
 
-		CCatalog cat = JsonConvert.DeserializeObject<CCatalog>(GetTextResponse("GetCatalog", pars));
+		string resp = GetTextResponse("GetCatalog", pars);
+		SessionTrace.Add(resp);
+
+		CCatalog cat = JsonConvert.DeserializeObject<CCatalog>(resp);
 		return cat;
 	}
 
@@ -158,6 +162,20 @@ public class UltimaWebService
 		pars["langid"] = langid;
 		rootCategoriesCache = JsonConvert.DeserializeObject<List<CCategory>>(GetTextResponse("GetRootCategories", pars));
 		return rootCategoriesCache;
+	}
+
+
+	public static List<CCategory> GetCategoryBreadCrumbs(int langid, int catId, bool useCache = true)
+	{
+		if (useCache && breadCrumbsCache != null && breadCrumbsCache.ContainsKey(catId) && breadCrumbsCache[catId]!= null)
+			return breadCrumbsCache[catId];
+
+		Hashtable pars = new Hashtable();
+		pars["langid"] = langid;
+		pars["catid"] = catId;
+		List<CCategory> crumbs = JsonConvert.DeserializeObject<List<CCategory>>(GetTextResponse("GetCategoryBreadCrumbs", pars));
+		breadCrumbsCache[catId] = crumbs;
+		return crumbs;
 	}
 
 	public static CProductInfo GetProductInfo(int prodId)
@@ -383,6 +401,8 @@ public class UltimaWebService
 		autorization = Convert.ToBase64String(binaryAuthorization);
 		autorization = "Basic " + autorization;
 		webRequest.Headers.Add("AUTHORIZATION", autorization);
+
+		SessionTrace.Add(paramString);
 
 		using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
 		{
