@@ -172,7 +172,7 @@ public class UltimaWebService
 		Hashtable pars = new Hashtable();
 		pars["prodid"] = prodId;
 		pars["langid"] = langid;
-		CProductInfo pi = JsonConvert.DeserializeObject<CProductInfo>(GetTextResponse("GetProfuctInfo", pars));
+		CProductInfo pi = JsonConvert.DeserializeObject<CProductInfo>(GetTextResponse("GetProductInfo", pars));
 		prodInfoCache[prodId] = pi;
 		return pi;
 	}
