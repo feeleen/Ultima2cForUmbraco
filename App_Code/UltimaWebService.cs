@@ -126,7 +126,7 @@ public class UltimaWebService
     }
 
 	public static CCatalog GetCatalog(int langid, int CategoryId, string SortField, string SortOrder, int PageSize, int PageNo,
-		string SearchQuery, int?[] BrandId, string[] BrandNames, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CFilter> filter)
+		string SearchQuery, int?[] BrandId, string[] BrandNames, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CRequestFilter> filter)
 	{
 		Hashtable pars = new Hashtable();
 		pars["langid"] = langid;

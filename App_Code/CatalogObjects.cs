@@ -58,6 +58,14 @@ public class CFilter
 	public List<CValue> Values { get; set; }
 }
 
+public class CRequestFilter
+{
+	public int KeyId { get; set; }
+	public decimal? ValueFrom { get; set; }
+	public decimal? ValueTo { get; set; }
+	public List<int> Values { get; set; }
+}
+
 public class CProduct
 {
 	public string Avail { get; set; }
