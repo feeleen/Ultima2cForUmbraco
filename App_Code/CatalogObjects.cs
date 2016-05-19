@@ -50,8 +50,8 @@ public class CValue
 public class CFilter
 {
 	public string Alias { get; set; }
-	public int MaxValue { get; set; }
-	public int MinValue { get; set; }
+	public decimal MaxValue { get; set; }
+	public decimal MinValue { get; set; }
 	public string Name { get; set; }
 	public int PropertyId { get; set; }
 	public int PropertyType { get; set; }
@@ -97,8 +97,8 @@ public class CCatalog
 	public List<CCategory> Categories { get; set; }
 	public List<CFilter> Filters { get; set; }
 	public int PagesOverall { get; set; }
-	public int PriceMax { get; set; }
-	public int PriceMin { get; set; }
+	public decimal PriceMax { get; set; }
+	public decimal PriceMin { get; set; }
 	public List<CProduct> Products { get; set; }
 }
 

@@ -149,8 +149,7 @@ public class UltimaWebService
 			SessionTrace.Add(resp);
 
 			CCatalog cat = JsonConvert.DeserializeObject<CCatalog>(resp);
-			SessionTrace.Add("cat.Products: " + (cat.Products == null).ToString());
-
+			
 			return cat;
 		}
 		catch (Exception ex)
