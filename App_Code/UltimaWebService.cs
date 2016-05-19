@@ -128,26 +128,36 @@ public class UltimaWebService
 	public static CCatalog GetCatalog(int langid, int CategoryId, string SortField, string SortOrder, int PageSize, int PageNo,
 		string SearchQuery, int?[] BrandId, string[] BrandNames, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CRequestFilter> filter)
 	{
-		Hashtable pars = new Hashtable();
-		pars["langid"] = langid;
-		pars["CategoryId"] = CategoryId;
-		pars["SortField"] = SortField;
-		pars["SortOrder"] = SortOrder;
-		pars["PageSize"] = PageSize;
-		pars["PageNo"] = PageNo;
-		pars["SearchQuery"] = SearchQuery;
-		pars["BrandId"] = BrandId;
-		pars["PriceFrom"] = PriceFrom;
-		pars["PriceTo"] = PriceTo;
-		pars["Availability"] = Availablity;
-		pars["Filter"] = filter;
-		pars["BrandNames"] = BrandNames;
+		try
+		{
+			Hashtable pars = new Hashtable();
+			pars["langid"] = langid;
+			pars["CategoryId"] = CategoryId;
+			pars["SortField"] = SortField;
+			pars["SortOrder"] = SortOrder;
+			pars["PageSize"] = PageSize;
+			pars["PageNo"] = PageNo;
+			pars["SearchQuery"] = SearchQuery;
+			pars["BrandId"] = BrandId;
+			pars["PriceFrom"] = PriceFrom;
+			pars["PriceTo"] = PriceTo;
+			pars["Availability"] = Availablity;
+			pars["Filter"] = filter;
+			pars["BrandNames"] = BrandNames;
 
-		string resp = GetTextResponse("GetCatalog", pars);
-		SessionTrace.Add(resp);
+			string resp = GetTextResponse("GetCatalog", pars);
+			SessionTrace.Add(resp);
 
-		CCatalog cat = JsonConvert.DeserializeObject<CCatalog>(resp);
-		return cat;
+			CCatalog cat = JsonConvert.DeserializeObject<CCatalog>(resp);
+			SessionTrace.Add("cat.Products: " + (cat.Products == null).ToString());
+
+			return cat;
+		}
+		catch (Exception ex)
+		{
+			SessionErrors.Add(ex.Message + Environment.NewLine + ex.StackTrace);
+			throw;
+		}
 	}
 
 	public static List<CCategory> GetRootCategories(int langid)

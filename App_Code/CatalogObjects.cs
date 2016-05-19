@@ -68,12 +68,12 @@ public class CRequestFilter
 
 public class CProduct
 {
-	public string Avail { get; set; }
+	public string Availability { get; set; }
 	public string BuyText { get; set; }
-	public string IconId { get; set; }
+	public int IconId { get; set; }
 	public DateTime IconMark { get; set; }
 	public string Name { get; set; }
-	public int Price { get; set; }
+	public decimal Price { get; set; }
 	public int ProdId { get; set; }
 }
 
