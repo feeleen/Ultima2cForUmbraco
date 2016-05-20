@@ -125,7 +125,7 @@ public class UltimaWebService
 		return doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductsResponse/{0}:{1}", doc.GetPrefix(), dataField), nsmgr).InnerText;
     }
 
-	public static CCatalog GetCatalog(int langid, int CategoryId, string SortField, string SortOrder, int PageSize, int PageNo,
+	public static CCatalog GetCatalog(int langid, int? CategoryId, string SortField, string SortOrder, int PageSize, int PageNo,
 		string SearchQuery, int?[] BrandId, string[] BrandNames, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CRequestFilter> filter)
 	{
 		try

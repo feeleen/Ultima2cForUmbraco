@@ -4,5 +4,59 @@
 }
 
 @{
+	int pageNo = Request.QueryString["pageNo"] == null? 1 : Convert.ToInt32(Request.QueryString["pageNo"]);
+	int pageSize = 20;
+	int? categoryId = null;
+	string sortFld = SortField.Price;
+	string sortOrd = SortOrder.Asc;
+	string avail = Availability.Outofstock;
+	string searchQuery = Request.QueryString["query"];
+	decimal? priceFrom = 0;
+	decimal? priceTo = 1000000000;
+	if (Request.QueryString["priceMin"]!= null)
+	{
+		priceFrom = Convert.ToDecimal(Request.QueryString["priceMin"]);
+	}
+	if (Request.QueryString["priceMax"]!= null)
+	{
+		priceTo = Convert.ToDecimal(Request.QueryString["priceMax"]);
+	}
+	int?[] brandId = null;
+	string[] brandNames = Request.QueryString.GetValues("brand");
+	List<CRequestFilter> filter = new List<CRequestFilter>();
+	
+	foreach (string fKey in Request.QueryString.AllKeys)
+	{
+		if (fKey!= null && fKey.StartsWith("f_"))
+		{
+			int propId = Convert.ToInt32(fKey.Replace("f_", ""));
+			string[] vals = Request.QueryString.GetValues(fKey);
+			List<int> fVals = new List<int>();
+			foreach(string v in vals)
+			{
+				if (v!= null)
+				{
+					fVals.Add(Convert.ToInt32(v));
+				}
+			}
+			if (vals!= null)
+			{
+				filter.Add(new CRequestFilter {KeyId = propId, Values = fVals});
+			}
+		}
+	}
+	
+	CCatalog catalog = null;
+	try
+	{
+		catalog = UltimaWebService.GetCatalog(-1, categoryId, sortFld, sortOrd, pageSize, pageNo,
+			searchQuery, brandId, brandNames, priceFrom, priceTo, avail, filter);
+	}
+	catch {}
+}
+
+@{ Html.RenderPartial("GoodList", new ViewDataDictionary { { "catalog", catalog } }); }
+
+@{
 	
 }

@@ -1,0 +1,28 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
+<div>
+@{
+	CCatalog catalog = (CCatalog)ViewData["catalog"];
+    if (catalog != null)
+	{
+		string pg = Request.QueryString["pageNo"];
+
+		for (int k = 1; k < (catalog.PagesOverall+1); k++  )
+		{
+			if (pg == k.ToString())
+			{
+				<b>@k</b>
+			}
+			else
+			{	
+				string newQuery = Request.QueryString.ToString().Replace("pageNo=" + pg, "pageNo=" + k);
+				if (!newQuery.Contains("pageNo="))
+				{
+					newQuery += "&pageNo=" + k;
+				}
+				<a href="?@newQuery">@k</a>
+			}
+		}
+	}
+}
+</div>
