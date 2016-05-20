@@ -1,0 +1,12 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
+@{
+	var attributes = new Dictionary<string, object>();
+	attributes.Add("Id", "searchForm");
+
+	using (Html.BeginForm("", "Search", FormMethod.Get, attributes))
+	{
+		<input id="queryBox" type="text" name="query"/> 
+		<input type="button" name="submitSearch" value="Search" onclick="window.location.assign('/Search?query='+$('#queryBox')[0].value)"/> 
+	}
+}
