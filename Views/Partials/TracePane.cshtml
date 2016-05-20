@@ -1,0 +1,15 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
+@{
+	SessionTrace trc = SessionTrace.Current;
+	if (trc!= null)
+	{
+		<div>
+		@foreach(string e in trc.List)
+		{
+			<p style="color:blue">@e</p>
+		}
+		</div>
+	}
+	SessionTrace.Reset();
+}

@@ -1,0 +1,29 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+@{
+	string title = CurrentPage.Title;
+	
+	try
+	{
+		if (CurrentPage.Name == "Good")
+		{
+			CProductInfo good = (CProductInfo)ViewData["good"];
+			title += " - " + ViewData["GoodID"].ToString(); // for debug
+			title = good.Name + " - " + CurrentPage.Title;
+		}
+		else if (CurrentPage.Name == "Goods")
+		{
+			CCategory cat = (CCategory)ViewData["category"];
+			title += " - " + ViewData["CategoryID"].ToString(); // for debug
+			title = cat.Category + "-" + CurrentPage.Title;
+		}
+	}
+	catch{}
+}
+	<title>@title</title>
+	<link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css"/>
+</head>

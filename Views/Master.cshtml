@@ -1,0 +1,23 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="ru">
+
+@{ Html.RenderPartial("Header"); }
+
+<body style="padding: 10px 0px 20px 0px">
+	<div class="container-fluid">
+		@{ Html.RenderPartial("TopMenu"); }
+		
+		@RenderBody()
+	</div>
+	
+	@{ Html.RenderPartial("ErrorsPane"); }
+	@{ Html.RenderPartial("TracePane"); }
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
+</body>
+</html>	

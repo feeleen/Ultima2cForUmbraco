@@ -1,0 +1,188 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+    Layout = "Master.cshtml";
+}
+
+@{
+	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
+	
+	bool reserveCreated = false;
+	
+	if (IsPost)
+	{
+		try
+		{
+			if (HttpContext.Current.Request["DeleteItem"]!= null)
+			{
+				int delGoodId = Convert.ToInt32(HttpContext.Current.Request["DeleteItem"]);
+				SessionBasket.DeleteFromBasket(delGoodId);
+			}
+			if (HttpContext.Current.Request["UpdateItem"]!= null)
+			{
+				int updGoodId = Convert.ToInt32(HttpContext.Current.Request["UpdateItem"]);
+				decimal newQty = Convert.ToDecimal(HttpContext.Current.Request["NewQuantity"]);
+				if (basket.ContainsKey(updGoodId))
+				{
+					SessionBasket.UpdateBasketQuantity(updGoodId, newQty, basket[-updGoodId]);
+				}
+			}
+			if (HttpContext.Current.Request["CrateReserve"]!= null)
+			{
+				string email = HttpContext.Current.Request["Email"];
+				string name = HttpContext.Current.Request["Name"];
+				string phone = HttpContext.Current.Request["Phone"];
+				string password = "empty"; //HttpContext.Current.Request["Password"];
+				string address = HttpContext.Current.Request["Address"];
+
+				long agentId = -1;
+				bool isClientEmailExists = UltimaWebService.IsClientExists(email);
+
+				if (!isClientEmailExists)
+				{
+					agentId= UltimaWebService.CreateAgent( email, name, phone, password, address);
+					if (agentId <= 0)
+					{
+						@Html.Raw("Unable to create Agent " + email);
+					}
+				}
+
+				bool signed = UltimaWebService.SignInAgent( email, password);
+				if (!signed)
+				{
+					@Html.Raw("Unable to sign in Agent " + email);
+				}
+
+				var res = UltimaWebService.CreateReserve();
+
+				long reserveID = Convert.ToInt64(res["Id"]);
+				DateTime deadDate = Convert.ToDateTime(res["DeadDate"]);
+				if (reserveID > 0)
+				{
+					<h1>Заказ №<b>@reserveID</b> создан!</h1>
+					<span>Для вас создан заказ с номером <b>@reserveID</b></span><br/>
+					<span>Обратите внимание, что заказ действителен до @deadDate.ToString()</span>
+
+					reserveCreated = true;
+					SessionBasket.ClearBasket();
+				}
+			}
+		}
+		catch (HttpException ex)
+		{
+			@Html.Raw("Server Error (" + ex.GetHttpCode() + "): " + ex.Message);
+		}
+	}
+	
+	if (!reserveCreated)
+	{		
+		decimal total = 0;
+		<table  class="table table-hover">
+			<thead>
+				<tr>
+					<th>Товар</th>
+					<th style="width:50%"></th>
+					<th>Кол-во</th>
+					<th>Цена</th>
+					<th>Сумма</th>
+					<th>Удаление</th>
+				</tr>
+			</thead>
+			<tbody>
+		@foreach(int key in basket.Keys)
+		{
+			if (key > 0)
+			{
+				decimal amount = basket[-key]*basket[key];
+				total += amount;
+				<tr>
+					<th scope="row">
+						<img class="card-img pull-left" src="/goodphoto/@key" width="200"/>	
+					</th>
+					<td>
+						<a href="/good/@key"><h5>@UltimaWebService.GetProductInfo(key, "Name")</h5></a><br/>
+						<h6>Артикул: @key</h6> 
+					</td>
+					<td>
+					@using (Html.BeginForm())
+					{
+						
+						<div class="input-group" style="max-width:150px">
+							<input type="hidden" name="UpdateItem" value="@key"/>
+							<input type="text" name="NewQuantity" class="form-control" style="min-width:50px;max-width:50px" value="@basket[key]"/>
+							<span class="input-group-btn">
+								<input type="submit" class="btn btn-primary" value="Пересчитать" />
+							</span>
+						</div>
+					}
+					</td>
+					<td><b>@basket[-key].ToString("### ### ##0") руб.</b></td>
+					<td><b>@amount.ToString("### ### ##0") руб.</b></td>
+					<td>
+					@using (Html.BeginForm())
+					{
+						<input type="hidden" name="DeleteItem" value="@key"/>
+						<input type="submit" class="btn btn-danger" value="Удалить" />
+					}
+					</td>
+				</tr>
+			}
+		}
+				<tr>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th>Итого:</th>
+					<th>@total.ToString("### ### ##0") руб.</th>
+					<th></th>
+				</tr>
+
+			</tbody>
+		</table>
+	
+	
+		using (Html.BeginForm())
+		{
+			<input type="hidden" name="CrateReserve" value="true"/>
+			<div class="row">
+				<div class="input-group col-md-4">
+				  <span class="input-group-addon" id="basic-addon1">Name:</span>
+				  <input type="text" name="Name" class="form-control" placeholder="Name" aria-describedby="basic-addon1">
+				</div>
+			</div>
+			<br>
+
+			<div class="row">
+				<div class="input-group col-md-4">
+				  <span class="input-group-addon" id="basic-addon2">Phone:</span>
+				  <input type="text" name="Phone" class="form-control" placeholder="Phone" aria-describedby="basic-addon2">
+				</div>
+			</div>
+			<br>
+
+			<div class="row">
+				<div class="input-group col-md-4">
+				  <span class="input-group-addon" id="basic-addon3">Address:</span>
+				  <input type="text" name="Address" class="form-control" placeholder="Address" aria-describedby="basic-addon3">
+				</div>
+			</div>
+			<br>
+
+			<div class="row">
+				<div class="input-group col-md-4">
+				  <span class="input-group-addon" id="basic-addon4">Email:</span>
+				  <input type="text" name="Email" class="form-control" placeholder="Your Email" aria-describedby="basic-addon4">
+				</div>
+			</div>
+			<br>
+			<!--div class="row">
+				<div class="input-group col-md-4">
+				  <span class="input-group-addon" id="basic-addon5">Password:</span>
+				  <input type="password" name="Password" class="form-control" aria-describedby="basic-addon5">
+				</div>
+			</div>
+			<br-->
+
+			<input type="submit" class="btn btn-primary" value="Оформить заказ" />
+		}
+	}
+}

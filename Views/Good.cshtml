@@ -1,0 +1,70 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+    Layout = "Master.cshtml";
+}
+
+@{ Html.RenderPartial("BreadCrumbs"); }
+
+@{
+	
+	<b>@ViewData["GoodID"].ToString()</b><br/>
+	int goodID = Convert.ToInt32(HttpContext.Current.Request.Url.Segments.Last());
+	if (IsPost)
+	{
+		SessionBasket.AddToBasket(goodID, 
+							Convert.ToDecimal(HttpContext.Current.Request["AddQuantity"], System.Globalization.CultureInfo.CurrentCulture), 
+							UltimaWebService.GetProductPrice(goodID));
+	}
+	CProductInfo good = null;
+	try
+	{
+		good = (CProductInfo)ViewData["good"]; //UltimaWebService.GetProductInfo(goodID);
+	
+		<h1>@good.Name</h1>
+	}
+	catch
+	{}
+	
+	<div class="row">
+		<div class="col-md-4">
+			<img class="card-img pull-left" src="/goodphoto/@goodID" width="200"/>
+			<br/>
+			@{
+				bool propsExists = false;
+				if (good!= null)
+				{
+					foreach(CProperty prop in good.Properties)
+					{
+						propsExists = true;
+						<b>@prop.Name</b> <text>: </text>  @prop.Value <br/>
+					}
+				}
+				if (!propsExists)
+				{
+					<text>This product has no any properties </text>
+				}
+			}
+		</div>
+		<div class="col-md-8">
+			<h2>@UltimaWebService.GetProductPrice(goodID) руб.</h2>
+			<div class="row">
+			
+	@using (Html.BeginForm())
+	{
+				<div class="col-md-8">
+					<div class="input-group" style="max-width:300px">
+    					<span class="input-group-btn">
+      						<a class="btn btn-success" href="/basket">В корзине: @SessionBasket.GetBasketQuantity(goodID)</a>
+						</span>
+						<input type="text" name="AddQuantity" class="form-control" style="min-width:50px" value="1"/>
+						<span class="input-group-btn">
+      						<input type="submit" class="btn btn-primary" value="Купить!" />
+						</span>
+					</div>
+				</div>
+	}
+	
+			</div>
+		</div>
+	</div>	
+}

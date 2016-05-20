@@ -1,0 +1,15 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
+@{
+	SessionErrors err = SessionErrors.Current;
+	if (err!= null)
+	{
+		<div>
+		@foreach(string e in err.List)
+		{
+			<p style="color:red">@e</p>
+		}
+		</div>
+	}
+	SessionErrors.Reset();
+}

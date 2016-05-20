@@ -1,0 +1,20 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+    Layout = null;
+}
+
+@{
+	int goodID = Convert.ToInt32(HttpContext.Current.Request.Url.Segments.Last());
+	
+	byte[] bytes = UltimaWebService.GetProductImage(goodID);
+	
+	int lifetime = 5;
+	Response.Cache.SetCacheability(HttpCacheability.Public);
+    Response.Cache.SetExpires(DateTime.Now.AddMinutes(lifetime));
+    Response.Cache.SetMaxAge(new TimeSpan(0, 0, lifetime *60));
+	Response.Cache.SetSlidingExpiration(true);
+	Response.Cache.SetValidUntilExpires(true);
+
+    Response.ContentType = "application/x-msdownload"; 
+    Response.OutputStream.Write(bytes, 0, bytes.Length);
+}

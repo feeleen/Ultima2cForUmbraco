@@ -1,0 +1,181 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+    Layout = "Master.cshtml";
+}
+
+@{
+	string currentCategory = "";
+	CCategory ccat = (CCategory)ViewData["category"];
+	if (ccat != null)
+	{
+		currentCategory = " \\ " + ccat.Category;
+	}
+}
+<h1>@CurrentPage.Title @currentCategory</h1>
+
+@{ Html.RenderPartial("BreadCrumbs"); }
+
+	
+<div>@CurrentPage.Body</div>
+
+
+@{
+
+	System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+	
+	if (IsPost && Request.Form["submitAdd"] != null &&  HttpContext.Current.Request["GoodID"]!= null)
+	{
+		int gID = Convert.ToInt32(HttpContext.Current.Request["GoodID"]);
+		SessionBasket.AddToBasket(gID, 
+							Convert.ToDecimal(HttpContext.Current.Request["AddQuantity"], System.Globalization.CultureInfo.CurrentCulture), 
+							UltimaWebService.GetProductPrice(gID));
+		Response.Redirect("/basket");
+	}
+	
+	
+	<!-- Single button -->
+	<div class="btn-group">
+		<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			Каталог
+		</button>
+		@{
+			List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
+		}
+		<div class="dropdown-menu">
+		@{
+			foreach (CCategory cat in rootCats)
+			{
+				<a class="dropdown-item" href="/Goods/@cat.CategoryId">@cat.Category</a>
+			}
+		}
+		</div>
+	</div>
+	
+	<p>Before GetCatalog @sw.ElapsedMilliseconds.ToString()</p>
+	
+	
+	int pageNo = Request.QueryString["pageNo"] == null? 1 : Convert.ToInt32(Request.QueryString["pageNo"]);
+	int pageSize = 20;
+	int categoryId = (int)ViewData["CategoryID"];
+	string sortFld = SortField.Price;
+	string sortOrd = SortOrder.Asc;
+	string avail = Availability.Outofstock;
+	string searchQuery = String.Empty;
+	decimal? priceFrom = 0;
+	decimal? priceTo = 10000000;
+	if (Request.QueryString["priceMin"]!= null)
+	{
+		priceFrom = Convert.ToDecimal(Request.QueryString["priceMin"]);
+	}
+	if (Request.QueryString["priceMax"]!= null)
+	{
+		priceTo = Convert.ToDecimal(Request.QueryString["priceMax"]);
+	}
+	int?[] brandId = null;
+	string[] brandNames = Request.QueryString.GetValues("brand");
+	List<CRequestFilter> filter = new List<CRequestFilter>();
+	
+	foreach (string fKey in Request.QueryString.AllKeys)
+	{
+		if (fKey!= null && fKey.StartsWith("f_"))
+		{
+			int propId = Convert.ToInt32(fKey.Replace("f_", ""));
+			string[] vals = Request.QueryString.GetValues(fKey);
+			List<int> fVals = new List<int>();
+			foreach(string v in vals)
+			{
+				if (v!= null)
+				{
+					fVals.Add(Convert.ToInt32(v));
+				}
+			}
+			if (vals!= null)
+			{
+				filter.Add(new CRequestFilter {KeyId = propId, Values = fVals});
+			}
+		}
+	}
+	
+	CCatalog catalog = null;
+	try
+	{
+		catalog = UltimaWebService.GetCatalog(-1, categoryId, sortFld, sortOrd, pageSize, pageNo,
+			searchQuery, brandId, brandNames, priceFrom, priceTo, avail, filter);
+	}
+	catch {}
+	
+	
+}
+<p>GetCatalog Done: @sw.ElapsedMilliseconds.ToString()</p>
+	
+@{ Html.RenderPartial("CatalogFilter", new ViewDataDictionary { { "catalog", catalog } }); }
+
+
+	
+
+
+	
+	<table  class="table table-hover">
+		<thead>
+			<tr>
+				<th></th>
+				<th style="width:80%"></th>
+				<th></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+	
+	@{
+		if (catalog != null && catalog.Products!= null)
+		{
+			int i = 0;
+			foreach(CProduct prod in catalog.Products)
+			{
+				i++;
+				if (i > 30)
+				{
+					break;
+				}	
+				var goodID = prod.ProdId;
+				<tr>
+					<th scope="row">
+						<img class="card-img pull-left" src="/goodphoto/@goodID" width="150"/>	
+					</th>
+					<td>
+						<a href="/good/@goodID">
+							<h4>
+							@prod.Name</h4></a>
+					</td>
+					<td style="min-width:200px">
+						<h4><b>@UltimaWebService.GetProductPrice(goodID)</b> руб.</h4>
+						<p>@sw.ElapsedMilliseconds.ToString()</p>
+					</td>
+					<td>
+
+					@using (Html.BeginForm())
+					{
+						<div class="input-group" style="max-width:300px">
+							<input type="hidden" name="GoodID" value="@goodID"/>
+							<input type="hidden" name="AddQuantity" value="1"/>
+							<span class="input-group-btn">
+								<input type="submit" name="submitAdd" class="btn btn-primary" value="Купить!" />
+							</span>
+						</div>
+
+					}
+
+					</td>
+				</tr>
+			}
+		}
+	}
+		</tbody>
+	</table>
+	@{
+}
+
+
+
+
+

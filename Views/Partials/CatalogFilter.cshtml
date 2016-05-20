@@ -1,0 +1,139 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
+@{
+	CCatalog catalog = (CCatalog)ViewData["catalog"];
+    if (catalog != null)
+	{
+		var attributes = new Dictionary<string, object>();
+		attributes.Add("Id", "filterForm");
+
+		using (Html.BeginForm(null, null, FormMethod.Get, attributes))
+		{
+		<div class="form-horizontal">
+			<fieldset class="form-group">
+				<legend class="col-sm-1 control-label">Categories</legend>
+				@{
+					foreach (CCategory cat in catalog.Categories)
+					{
+						<a class="nav-link" href="/goods/@cat.CategoryId">@cat.Category &nbsp;</a>
+					}
+				 }
+				
+				<br clear="all"/>
+				<legend class="col-sm-1 control-label">Brands</legend>
+				<div class="checkbox checkboxlist col-sm-9">
+					@{
+						var brValues = Request.QueryString.GetValues("brand");
+						foreach (CBrand br in catalog.Brands)
+						{
+							<label>
+							@{
+								bool bchecked = false;
+
+								if (brValues != null)
+								{
+									foreach (String item in brValues)
+									{
+										if (item == br.Brand)
+										{
+											bchecked = true;
+											break;
+										}
+									}
+								}
+
+								if (bchecked)
+								{
+									<input type="checkbox" name="brand" checked="@br.Brand" value="@br.Brand"/> @br.Brand
+								}
+								else
+								{
+									<input type="checkbox" name="brand" value="@br.Brand"/> @br.Brand
+								}
+
+							}
+							</label>
+						}
+					}
+				</div>
+				<br clear="all"/>
+
+				<legend class="col-sm-1 control-label">Price range</legend>
+				<b>@catalog.PriceMin</b>
+					@{
+						string minp = catalog.PriceMin.ToString();
+						string maxp = catalog.PriceMax.ToString();
+						if (Request.QueryString["priceMin"]!= null)
+						{
+							minp = Request.QueryString["priceMin"];
+						}
+						if (Request.QueryString["priceMax"]!= null)
+						{
+							maxp = Request.QueryString["priceMax"];
+						}
+					}
+					<input name="priceMin" type="text" class="span2" value="@minp"/> 
+					<input name="priceMax" type="text" class="span2" value="@maxp"/>
+				<b>@catalog.PriceMax</b>
+				<br clear="all"/>
+
+				
+				<div class="checkbox checkboxlist col-sm-9">
+					@{
+						foreach (CFilter f in catalog.Filters)
+						{
+							<legend class="col-sm-1 control-label">@f.Name</legend>
+							<label>
+							@{
+								foreach (CValue v in f.Values)
+								{
+									string vals = Request.QueryString.Get("f_" + f.PropertyId);
+									if (vals!= null && vals.Contains(v.ValueId.ToString()))
+									{
+										<input type="checkbox" name="f_@f.PropertyId" checked="@v.ValueId" value="@v.ValueId"/> @v.Value
+									}
+									else
+									{
+										<input type="checkbox" name="f_@f.PropertyId" value="@v.ValueId"/> @v.Value
+									}
+								}
+							}
+							</label>
+							<br clear="all"/>
+
+						}
+					}
+				</div>
+						
+						
+			</fieldset>
+			<input type="button" name="submitFilter" value="Apply filter" onclick="$('#filterForm')[0].submit();"/> 
+		</div>
+		}
+	}
+}
+<div>
+@{
+	if (catalog != null)
+	{
+		string pg = Request.QueryString["pageNo"];
+
+		for (int k = 1; k < (catalog.PagesOverall+1); k++  )
+		{
+			if (pg == k.ToString())
+			{
+				<b>@k</b>
+			}
+			else
+			{	
+				string newQuery = Request.QueryString.ToString().Replace("pageNo=" + pg, "pageNo=" + k);
+				if (!newQuery.Contains("pageNo="))
+				{
+					newQuery += "&pageNo=" + k;
+				}
+				<a href="?@newQuery">@k</a>
+			}
+		}
+	}
+}
+</div>

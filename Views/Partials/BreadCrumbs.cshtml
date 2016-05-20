@@ -1,0 +1,26 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+<div>
+@{
+	
+	int? catId = null;
+	int? prodId = null;
+	if (ViewData["CategoryID"] !=null)
+	{
+		catId = (int)ViewData["CategoryID"];
+	}
+	if (ViewData["GoodID"] !=null)
+	{
+		prodId = (int)ViewData["GoodID"];
+	}
+	List<CCategory> crumbs = UltimaWebService.GetCategoryBreadCrumbs(-1, prodId, catId);
+	string comma = "";
+	foreach(CCategory cr in crumbs)
+	{
+		@comma<a href="/goods/@cr.CategoryId">@cr.Category</a>
+			if (comma.Length == 0)
+			{
+				comma = ", ";
+			}
+	}
+}	
+</div>

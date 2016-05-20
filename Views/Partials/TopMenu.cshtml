@@ -1,0 +1,42 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
+
+@*
+    This snippet displays a list of links of the pages immediately under the top-most page in the content tree.
+    This is the home page for a standard website.
+    It also highlights the current active page/section in the navigation with the css class "current".
+*@
+
+@{ var selection = CurrentPage.Site().Children.Where("Visible &&  Name != \"Good\"  &&  Name != \"GoodPhoto\""); }
+
+<div>
+<nav class="navbar navbar-light bg-faded">
+	<a class="navbar-brand" href="/">Ultima2c Demo</a>
+	<ul class="nav nav-pills">
+		@foreach (var item in selection)
+		{
+			if (@item.Name == "Basket")
+			{
+				decimal total = 0;
+				System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
+				foreach(int key in basket.Keys)
+				{
+					if (key > 0)
+					{
+						total += basket[key] * basket[-key];
+					}
+				}
+				<li class="nav-item pull-right">
+					<a href="@item.Url" class="nav-link @{ if (@item.Id == CurrentPage.Id) {@Html.Raw("active")}}">@item.Title: <b>@basket.Where(x => x.Key > 0).Sum(x => x.Value)</b> на <b>@total.ToString("### ### ##0")</b> руб.</a>
+				</li>
+			}
+			else
+			{
+				<li class="nav-item">
+					<a href="@item.Url" class="nav-link @{ if (@item.Id == CurrentPage.Id) {@Html.Raw("active")}}">@item.Title</a></li>
+			}
+		}
+	</ul>
+</nav>
+<br clear="all"/>
+</div>
