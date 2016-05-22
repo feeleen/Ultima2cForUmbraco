@@ -3,6 +3,10 @@
     Layout = "Master.cshtml";
 }
 
+<div>@CurrentPage.Body</div>
+
+@{ Html.RenderPartial("SearchBox"); }
+
 @{
 	int pageNo = Request.QueryString["pageNo"] == null? 1 : Convert.ToInt32(Request.QueryString["pageNo"]);
 	int pageSize = 20;
@@ -47,12 +51,24 @@
 	}
 	
 	CCatalog catalog = null;
-	try
+	if (searchQuery!= null && searchQuery.Length > 2)
 	{
-		catalog = UltimaWebService.GetCatalog(-1, categoryId, sortFld, sortOrd, pageSize, pageNo,
-			searchQuery, brandId, brandNames, priceFrom, priceTo, avail, filter);
+		try
+		{
+			catalog = UltimaWebService.GetCatalog(-1, categoryId, sortFld, sortOrd, pageSize, pageNo,
+				searchQuery, brandId, brandNames, priceFrom, priceTo, avail, filter);
+		}
+		catch {}
 	}
-	catch {}
+	
+	if (catalog == null || catalog.Products == null || catalog.Products.Count == 0)
+	{
+		<div>По запросу &laquo;@searchQuery&raquo; ничего не найдено</div>
+	}
+	else
+	{
+		<div>Результаты поиска по запросу &laquo;@searchQuery&raquo;:</div>
+	}
 }
 
 @{ Html.RenderPartial("GoodList", new ViewDataDictionary { { "catalog", catalog } }); }
