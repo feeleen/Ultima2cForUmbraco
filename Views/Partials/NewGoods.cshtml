@@ -1,0 +1,86 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+	int pageNo = 1;
+	int pageSize = 10;
+	int? categoryId = null;
+	string sortFld = SortField.Price;
+	string sortOrd = SortOrder.Asc;
+	string avail = Availability.Outofstock;
+	string searchQuery = String.Empty;
+	DateTime DateAdded = DateTime.Now.AddDays(-1000);
+	decimal? priceFrom = 0;
+	decimal? priceTo = 10000000;
+	int?[] brandId = null;
+	string[] brandNames = Request.QueryString.GetValues("brand");
+	List<CRequestFilter> filter = new List<CRequestFilter>();
+	
+	CCatalog catalog = null;
+	try
+	{
+		catalog = UltimaWebService.GetCatalog(1, categoryId, sortFld, sortOrd, pageSize, pageNo,
+			searchQuery, brandId, brandNames, priceFrom, priceTo, avail, filter, DateAdded);
+	}
+	catch {}
+}
+
+@{ 
+	<h3>Новые товары</h3>
+	<table  class="table table-hover">
+		<thead>
+			<tr>
+				<th></th>
+				<th style="width:80%"></th>
+				<th></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+	
+	@{
+		if (catalog != null && catalog.Products!= null)
+		{
+			int i = 0;
+			foreach(CProduct prod in catalog.Products)
+			{
+				i++;
+				if (i > 30)
+				{
+					break;
+				}	
+				var goodID = prod.ProdId;
+				<tr>
+					<th scope="row">
+						<img class="card-img pull-left" src="/goodphoto/@goodID" width="150"/>	
+					</th>
+					<td>
+						<a href="/good/@goodID">
+							<h4>
+							@prod.Name</h4></a>
+					</td>
+					<td style="min-width:200px">
+						<h4><b>@UltimaWebService.GetProductPrice(goodID)</b> руб.</h4>
+					</td>
+					<td>
+
+					@using (Html.BeginForm())
+					{
+						<div class="input-group" style="max-width:300px">
+							<input type="hidden" name="GoodID" value="@goodID"/>
+							<input type="hidden" name="AddQuantity" value="1"/>
+							<span class="input-group-btn">
+								<input type="submit" name="submitAdd" class="btn btn-primary" value="Купить!" />
+							</span>
+						</div>
+
+					}
+
+					</td>
+				</tr>
+			}
+		}
+	}
+		</tbody>
+	</table>
+			
+}
+

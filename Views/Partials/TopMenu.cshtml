@@ -30,6 +30,23 @@
 					<a href="@item.Url" class="nav-link @{ if (@item.Id == CurrentPage.Id) {@Html.Raw("active")}}">@item.Title: <b>@basket.Where(x => x.Key > 0).Sum(x => x.Value)</b> на <b>@total.ToString("### ### ##0")</b> руб.</a>
 				</li>
 			}
+			else if (@item.Name == "Goods")
+			{
+				<button type="button" class="btn nav-link nav-item pull-right btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					Каталог
+				</button>
+				
+					List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
+				
+				<div class="dropdown-menu">
+				@{
+					foreach (CCategory cat in rootCats)
+					{
+						<a class="dropdown-item" href="/Goods/@cat.CategoryId">@cat.Category</a>
+					}
+				}
+				</div>
+			}
 			else
 			{
 				<li class="nav-item">

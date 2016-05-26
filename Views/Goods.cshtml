@@ -18,7 +18,7 @@
 	
 <div>@CurrentPage.Body</div>
 
-@{ Html.RenderPartial("SearchBox", new ViewDataDictionary { { "catalog", catalog } }); }
+@{ Html.RenderPartial("SearchBox"); }
 
 @{
 
@@ -34,23 +34,7 @@
 	}
 	
 	
-	<!-- Single button -->
-	<div class="btn-group">
-		<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			Каталог
-		</button>
-		@{
-			List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
-		}
-		<div class="dropdown-menu">
-		@{
-			foreach (CCategory cat in rootCats)
-			{
-				<a class="dropdown-item" href="/Goods/@cat.CategoryId">@cat.Category</a>
-			}
-		}
-		</div>
-	</div>
+	
 	
 	<p>Before GetCatalog @sw.ElapsedMilliseconds.ToString()</p>
 	
@@ -100,7 +84,7 @@
 	CCatalog catalog = null;
 	try
 	{
-		catalog = UltimaWebService.GetCatalog(-1, categoryId, sortFld, sortOrd, pageSize, pageNo,
+		catalog = UltimaWebService.GetCatalog(1, categoryId, sortFld, sortOrd, pageSize, pageNo,
 			searchQuery, brandId, brandNames, priceFrom, priceTo, avail, filter);
 	}
 	catch {}

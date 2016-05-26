@@ -126,7 +126,7 @@ public class UltimaWebService
     }
 
 	public static CCatalog GetCatalog(int langid, int? CategoryId, string SortField, string SortOrder, int PageSize, int PageNo,
-		string SearchQuery, int?[] BrandId, string[] BrandNames, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CRequestFilter> filter)
+		string SearchQuery, int?[] BrandId, string[] BrandNames, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CRequestFilter> filter, DateTime? DateAdded = null)
 	{
 		try
 		{
@@ -144,6 +144,7 @@ public class UltimaWebService
 			pars["Availability"] = Availablity;
 			pars["Filter"] = filter;
 			pars["BrandNames"] = BrandNames;
+			pars["DateAdded"] = DateAdded;
 
 			string resp = GetTextResponse("GetCatalog", pars);
 			SessionTrace.Add(resp);
