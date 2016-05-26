@@ -5,8 +5,6 @@
 
 <div>@CurrentPage.Body</div>
 
-@{ Html.RenderPartial("SearchBox"); }
-
 @{
 	int pageNo = Request.QueryString["pageNo"] == null? 1 : Convert.ToInt32(Request.QueryString["pageNo"]);
 	int pageSize = 20;
@@ -51,7 +49,7 @@
 	}
 	
 	CCatalog catalog = null;
-	if (searchQuery!= null && searchQuery.Length > 2)
+	if (searchQuery!= null)
 	{
 		try
 		{
@@ -61,13 +59,16 @@
 		catch {}
 	}
 	
-	if (catalog == null || catalog.Products == null || catalog.Products.Count == 0)
+	if (searchQuery!= null && searchQuery.Length > 2)
 	{
-		<div>Nothing found with &laquo;@searchQuery&raquo;, try again</div>
-	}
-	else
-	{
-		<div>Search results with &laquo;@searchQuery&raquo;:</div>
+		if (catalog == null || catalog.Products == null || catalog.Products.Count == 0)
+		{
+			<div>Nothing found with &laquo;@searchQuery&raquo;, try again</div>
+		}
+		else
+		{
+			<div>Search results with &laquo;@searchQuery&raquo;:</div>
+		}
 	}
 }
 
