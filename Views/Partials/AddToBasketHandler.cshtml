@@ -1,0 +1,11 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+	if (IsPost && Request.Form["submitAdd"] != null &&  HttpContext.Current.Request["GoodID"]!= null)
+	{
+		int gID = Convert.ToInt32(HttpContext.Current.Request["GoodID"]);
+		SessionBasket.AddToBasket(gID, 
+							Convert.ToDecimal(HttpContext.Current.Request["AddQuantity"], System.Globalization.CultureInfo.CurrentCulture), 
+							UltimaWebService.GetProductPrice(gID));
+		Response.Redirect("/basket");
+	}
+}
