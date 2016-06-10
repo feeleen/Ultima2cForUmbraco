@@ -70,7 +70,7 @@ public class CProduct
 {
 	public string Availability { get; set; }
 	public string BuyText { get; set; }
-	public int IconId { get; set; }
+	public string IconId { get; set; }
 	public DateTime IconMark { get; set; }
 	public string Name { get; set; }
 	public decimal Price { get; set; }
