@@ -109,6 +109,13 @@ public class CPhoto
 	public DateTime PhotoMark { get; set; }
 }
 
+public class CGoodImage
+{
+	public int ImageId { get; set; }
+	public byte[] Image { get; set; }
+}
+
+
 public class CProperty
 {
 	public int Kind { get; set; }

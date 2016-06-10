@@ -246,8 +246,51 @@ public class UltimaWebService
 	{
 		return GetProductImage(goodID, 0, true);
     }
+	
+	
+	public static byte[] GetProductImage(string photoID)
+	{
+		return GetProductImage(photoID, true);
+    }
+	
+	public static byte[] GetProductImage(string photoID, bool useCache)
+	{
+		string[] vals = photoID.Split('_');
+		long goodID = Convert.ToInt64(vals[0]);
+		int viewID = Convert.ToInt32(vals[1]);
+		
+		if (useCache && prodPhotoCache.ContainsKey(goodID))
+			return prodPhotoCache[goodID];
 
-    public static byte[] GetProductImage(long goodID, int viewID, bool useCache)
+		byte[] bytes = DiskCache.GetImage(goodID, 0, viewID);
+		if (bytes != null)
+			return bytes;
+		else
+			bytes = GetNoImageStub();
+		
+		Hashtable pars = new Hashtable();
+		pars["Images"] = new String[] {photoID};
+		CGoodImage[] images = JsonConvert.DeserializeObject<CGoodImage[]>(GetTextResponse("GetImages", pars));
+		if (images == null)
+		{
+			bytes = GetNoImageStub();
+		}	
+		else
+		{
+			bytes = images[0].Image;
+			if (bytes != null)
+				DiskCache.WriteImage(bytes, goodID, 0, viewID);
+		}
+		
+		if (useCache)
+			prodPhotoCache[goodID] = bytes;
+		
+		return bytes;
+    }
+
+    
+	
+	public static byte[] GetProductImage(long goodID, int viewID, bool useCache)
 	{
 		if (useCache && prodPhotoCache.ContainsKey(goodID))
 			return prodPhotoCache[goodID];
