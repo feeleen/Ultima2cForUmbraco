@@ -7,7 +7,7 @@
 
 @{
 	
-	<b>@ViewData["GoodID"].ToString()</b><br/>
+	string desc = "";
 	int goodID = Convert.ToInt32(HttpContext.Current.Request.Url.Segments.Last());
 	if (IsPost)
 	{
@@ -20,51 +20,86 @@
 	{
 		good = (CProductInfo)ViewData["good"]; //UltimaWebService.GetProductInfo(goodID);
 	
-		<h1>@good.Name</h1>
+		
 	}
 	catch
 	{}
 	
+	<div class="row item-view">
+		<div class="row">
+			<div class="col-md-5 product-photos">
+				<div class="imglarge"><a href="/goodphoto/@goodID" rel="prettyPhoto[pp_gal]"><img class="card-img" src="/goodphoto/@goodID" /></a></div>
+				<div class="imgother">
+					@{
+						foreach(CPhoto photo in good.Photos) {
+							<div><a href="/goodphoto/@goodID" rel="prettyPhoto[pp_gal]"><img src="/goodphoto/@photo.PhotoId"></a></div><br/>
+						}
+					}
+				</div>
+			</div>
+			<div class="col-md-7">
+				<div class="product-info">
+					<h1>@good.Name</h1>
+					<span class="model"><i>Model:</i> @good.ProdId/A</span>
+					<h2 class="price">&euro; @UltimaWebService.GetProductPrice(goodID) <sup>00</sup></h2>
+					<span class="stok">In Stok</span>
+		
+					
+					@using (Html.BeginForm())
+					{
+						
+						<input type="text" name="AddQuantity" class="form-control" style="display:none" value="1"/>
+						<span class="tocart">
+							<input type="submit" value="Add to cart" />
+						</span>
+						
+					}
+			
+				</div>
+			</div>
+		</div>
+		
+	</div>	
 	<div class="row">
-		<div class="col-md-4">
-			<img class="card-img pull-left" src="/goodphoto/@goodID" width="200"/>
-			<br/>
+		<div class="col-md-6 specification">
+			<h2>SPECIFICATION</h2>
+			<dl class="dl-horizontal">
 			@{
+				
 				bool propsExists = false;
 				if (good!= null)
 				{
+					
 					foreach(CProperty prop in good.Properties)
 					{
+						if(prop.Name == "Краткое содержание") {
+							desc = prop.Value;
+							continue;
+						}
 						propsExists = true;
-						<b>@prop.Name</b> <text>: </text>  @prop.Value <br/>
+						<dt>@prop.Name</dt><dd>@prop.Value </dd>
 					}
 				}
 				if (!propsExists)
 				{
-					<text>This product has no any properties </text>
+					<dt>Screen Size</dt><dd>9.7 inches</dd>
+					<dt>Touch Screen</dt><dd>Yes</dd>
+					<dt>Operating System</dt><dd>Apple iOS 9</dd>
+					<dt>Internet Connectivity</dt><dd>4G LTE, Wi-Fi</dd>
+					<dt>Processor Brand</dt><dd>Apple</dd>
+					<dt>Processor Model</dt><dd>A9X chip with 64bit architecture</dd>
+					<dt>Screen Resolution</dt><dd>2048 x 1536</dd>
+					<dt>Storage Capacity</dt><dd>256 gigabytes</dd>
 				}
+				
 			}
+			</dl>
 		</div>
-		<div class="col-md-8">
-			<h2>@UltimaWebService.GetProductPrice(goodID) руб.</h2>
-			<div class="row">
+		<div class="col-md-6 overview">
+			<h2>OVERVIEW</h2>
+				<p class="desc">@desc</p>
 			
-	@using (Html.BeginForm())
-	{
-				<div class="col-md-8">
-					<div class="input-group" style="max-width:300px">
-    					<span class="input-group-btn">
-      						<a class="btn btn-success" href="/basket">В корзине: @SessionBasket.GetBasketQuantity(goodID)</a>
-						</span>
-						<input type="text" name="AddQuantity" class="form-control" style="min-width:50px" value="1"/>
-						<span class="input-group-btn">
-      						<input type="submit" class="btn btn-primary" value="Купить!" />
-						</span>
-					</div>
-				</div>
-	}
-	
-			</div>
 		</div>
-	</div>	
+		
+	</div>
 }

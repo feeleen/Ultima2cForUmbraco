@@ -1,20 +1,11 @@
-﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
 
 @{ Html.RenderPartial("AddToBasketHandler"); }
 
 @{
 	CCatalog catalog = (CCatalog)ViewData["catalog"];
-	
-	<table  class="table table-hover">
-		<thead>
-			<tr>
-				<th></th>
-				<th style="width:80%"></th>
-				<th></th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
+	<div id="products" class="products">
+	<ul class="products-inner list">
 	
 	@{
 		if (catalog != null && catalog.Products!= null)
@@ -28,40 +19,91 @@
 					break;
 				}	
 				var goodID = prod.ProdId;
-				<tr>
-					<th scope="row">
-						<img class="card-img pull-left" src="/goodphoto/@goodID" width="150"/>	
-					</th>
-					<td>
-						<a href="/good/@goodID">
-							<h4>
-							@prod.Name</h4></a>
-					</td>
-					<td style="min-width:200px">
-						<h4><b>@UltimaWebService.GetProductPrice(goodID)</b> руб.</h4>
-					</td>
-					<td>
-
-					@using (Html.BeginForm())
-					{
-						<div class="input-group" style="max-width:300px">
+				<li class="item">
+					
+				  <div class="products-caption">
+				  @{
+						
+					}
+					<a href="/good/@goodID">
+						<div class="img">
+							<img src="/goodphoto/@goodID" alt="...">
+						</div>
+						<span class="prodTitle">@prod.Name</span>
+						</a>
+						<ul class="dl-horizontal">
+						@{
+							CProductInfo good = null;
+							try
+							{ 
+							 good = UltimaWebService.GetProductInfo(goodID);
+							}
+							catch {}
+							bool propsExists = false;
+							if (good!= null)
+							{
+								int i2 = 0;
+								foreach(CProperty prop in good.Properties)
+								{
+									if (i2 > 7)
+									{
+										break;
+									}	
+									if(@prop.PropId!=8910) {
+										
+										i2++;
+										propsExists = true;
+										<li> @prop.Value </li>
+									}
+									
+									
+								}
+							}
+							if (!propsExists)
+							{
+								<li>9.7 inches</li>
+								<li>Apple iOS 9</li>
+								<li>4G LTE, Wi-Fi</li>
+								<li>Apple</li>
+								<li>A9X chip with 64bit architecture</li>
+								<li>2048 x 1536</li>
+								<li>256 gigabytes</li>
+							}
+						}
+						</ul>
+					
+					<div class="nd-block right">
+						<span class="price">
+							<span class="glyphicon glyphicon-ru"></span>&euro; @UltimaWebService.GetProductPrice(goodID)</span>
+						@{
+							if(prod.Availability == "outofstock") {
+								<span class="instok not">Not in Stok</span>
+							}
+							else {
+								<span class="instok">In Stok</span>
+							}
+						}
+						@using (Html.BeginForm())
+						{
 							<input type="hidden" name="GoodID" value="@goodID"/>
 							<input type="hidden" name="AddQuantity" value="1"/>
-							<span class="input-group-btn">
-								<input type="submit" name="submitAdd" class="btn btn-primary" value="Купить!" />
+							<span class="tocart">
+								<input type="submit" name="submitAdd" value="Add to cart" />
 							</span>
-						</div>
-
-					}
-
-					</td>
-				</tr>
+						}
+					</div>
+				  </div>
+				  <div class="clear"></div>
+				</li>
+					
 			}
 		}
 	}
-		</tbody>
-	</table>
-			
+	
+	</ul>
+	<div class="clear"></div>
+	</div>
+		<div class="clear"></div>
 }
 
 @{ Html.RenderPartial("Pager", new ViewDataDictionary { { "catalog", catalog } }); }

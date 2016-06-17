@@ -58,10 +58,22 @@
 				DateTime deadDate = Convert.ToDateTime(res["DeadDate"]);
 				if (reserveID > 0)
 				{
-					<h1>Заказ №<b>@reserveID</b> создан!</h1>
-					<span>Для вас создан заказ с номером <b>@reserveID</b></span><br/>
-					<span>Обратите внимание, что заказ действителен до @deadDate.ToString()</span>
+					<h1>Cart is empty!</h1>
+					<div class="modal fade" id="OrderSuccess" tabindex="-1" role="dialog" aria-labelledby="OrderSuccessLabel">
+					  <div class="modal-dialog" role="document">
+						<div class="modal-content">
+						 
+						  <div class="modal-body">
+							<h1>Thank you for your order!</h1>
 
+							<p>Number of your order @reserveID</p>
+							<p>You can pick up your order @deadDate.ToString()</p><br/>
+						  </div>
+						 
+						</div>
+					  </div>
+					</div>
+					
 					reserveCreated = true;
 					SessionBasket.ClearBasket();
 				}
@@ -74,115 +86,113 @@
 	}
 	
 	if (!reserveCreated)
-	{		
+	{
 		decimal total = 0;
-		<table  class="table table-hover">
-			<thead>
-				<tr>
-					<th>Товар</th>
-					<th style="width:50%"></th>
-					<th>Кол-во</th>
-					<th>Цена</th>
-					<th>Сумма</th>
-					<th>Удаление</th>
-				</tr>
-			</thead>
-			<tbody>
-		@foreach(int key in basket.Keys)
-		{
-			if (key > 0)
+		decimal count = 0;
+		<div class="row cart">
+		  <div class="col-md-9">
+			<h1>MYCART</h1>
+			
+			<table  class="table-hover" width="100%">
+				<thead>
+					<tr class="table-head">
+						<th>Product details</th>
+						<th>Qty</th>
+						<th>Price</th>
+						<th>Total</th>
+					</tr>
+				</thead>
+				<tbody>
+			@foreach(int key in basket.Keys)
 			{
-				decimal amount = basket[-key]*basket[key];
-				total += amount;
-				<tr>
-					<th scope="row">
-						<img class="card-img pull-left" src="/goodphoto/@key" width="200"/>	
-					</th>
-					<td>
-						<a href="/good/@key"><h5>@UltimaWebService.GetProductInfo(key, "Name")</h5></a><br/>
-						<h6>Артикул: @key</h6> 
-					</td>
-					<td>
-					@using (Html.BeginForm())
-					{
+				
+				if (key > 0)
+				{
+					<tr class="separator"><td colspan="4"></td></tr>
+					decimal amount = basket[-key]*basket[key];
+					total += amount;
+					count++;
+					<tr class="cart-item">
+						<td scope="row">
+							<div class="image"><img class="card-img" src="/goodphoto/@key" /></div>	
+							<a class="name" href="/good/@key">@UltimaWebService.GetProductInfo(key, "Name")</a>
+							<span class="model"><i>Model</i>: @key</span> 
+						</td>
 						
-						<div class="input-group" style="max-width:150px">
-							<input type="hidden" name="UpdateItem" value="@key"/>
-							<input type="text" name="NewQuantity" class="form-control" style="min-width:50px;max-width:50px" value="@basket[key]"/>
-							<span class="input-group-btn">
-								<input type="submit" class="btn btn-primary" value="Пересчитать" />
-							</span>
-						</div>
-					}
-					</td>
-					<td><b>@basket[-key].ToString("### ### ##0") руб.</b></td>
-					<td><b>@amount.ToString("### ### ##0") руб.</b></td>
-					<td>
-					@using (Html.BeginForm())
-					{
-						<input type="hidden" name="DeleteItem" value="@key"/>
-						<input type="submit" class="btn btn-danger" value="Удалить" />
-					}
-					</td>
-				</tr>
+						<td>
+						@using (Html.BeginForm())
+						{
+							
+							<table class="input-group"><tr>
+								<input type="hidden" name="UpdateItem" value="@key"/>
+								<td><span class="delete"></span></td>
+								<td><span class="minus"></span></td>
+								<td><span class="input"><input type="text" name="NewQuantity" value="@basket[key]"/></span></td>
+								<td><span class="plus"></span></td>
+							</tr>	
+							</table>
+						}
+						</td>
+						<td>&euro; @basket[-key].ToString("### ### ##0")</td>
+						<td>&euro; @amount.ToString("### ### ##0")</td>
+
+					</tr>
+				}
 			}
-		}
-				<tr>
-					<th></th>
-					<th></th>
-					<th></th>
-					<th>Итого:</th>
-					<th>@total.ToString("### ### ##0") руб.</th>
-					<th></th>
-				</tr>
+					
 
-			</tbody>
-		</table>
+				</tbody>
+			</table>
+		  </div>
+		  <div class="col-md-3">
+		  <div class="order-form">
+			<h2>ORDER SUMMARY</h2>
+				<div class="summary">
+					<span class="count"><em>@count items</em> <i>&euro;  @total.ToString("### ### ##0")</i></span>
+					<span class="delivery"><em>Delivery</em> <i>€ 1401</i></span>
+					<span class="total"><em>TOTAL</em> <i>&euro;  @total.ToString("### ### ##0")</i></span>
+					<span class="update">Update cart</span>
+				</div>
+				@using (Html.BeginForm())
+				{
+					<input type="hidden" name="CrateReserve" value="true"/>
+					<div class="form-group">
+						 <label>Name:</label>
+						  <input required type="text" name="Name" class="form-control" placeholder="Name" aria-describedby="basic-addon1">
+					</div>
+
+					<div class="form-group">
+						 <label>Phone:</label>
+						  <input required type="tel" name="Phone" class="form-control" placeholder="Phone" aria-describedby="basic-addon2">
+					</div>
+					<div class="form-group">
+						 <label>Address:</label>
+						  <input required type="text" name="Address" class="form-control" placeholder="Address" aria-describedby="basic-addon3">
+					</div>
+
+					<div class="form-group">
+						 <label>Email:</label>
+						  <input required type="email" name="Email" class="form-control" placeholder="Your Email" aria-describedby="basic-addon4">
+					</div>
+					<!--div class="row">
+						<div class="input-group col-md-4">
+						  <span class="input-group-addon" id="basic-addon5">Password:</span>
+						  <input type="password" name="Password" class="form-control" aria-describedby="basic-addon5">
+						</div>
+					</div>
+					<br-->
+
+					
+				}
+			</div>
+			<input type="submit" class="place-order" value="PLACE ORDER" />
+		  </div>
+		</div>
+		
+		
+		
+		
 	
-	
-		using (Html.BeginForm())
-		{
-			<input type="hidden" name="CrateReserve" value="true"/>
-			<div class="row">
-				<div class="input-group col-md-4">
-				  <span class="input-group-addon" id="basic-addon1">Name:</span>
-				  <input type="text" name="Name" class="form-control" placeholder="Name" aria-describedby="basic-addon1">
-				</div>
-			</div>
-			<br>
-
-			<div class="row">
-				<div class="input-group col-md-4">
-				  <span class="input-group-addon" id="basic-addon2">Phone:</span>
-				  <input type="text" name="Phone" class="form-control" placeholder="Phone" aria-describedby="basic-addon2">
-				</div>
-			</div>
-			<br>
-
-			<div class="row">
-				<div class="input-group col-md-4">
-				  <span class="input-group-addon" id="basic-addon3">Address:</span>
-				  <input type="text" name="Address" class="form-control" placeholder="Address" aria-describedby="basic-addon3">
-				</div>
-			</div>
-			<br>
-
-			<div class="row">
-				<div class="input-group col-md-4">
-				  <span class="input-group-addon" id="basic-addon4">Email:</span>
-				  <input type="text" name="Email" class="form-control" placeholder="Your Email" aria-describedby="basic-addon4">
-				</div>
-			</div>
-			<br>
-			<!--div class="row">
-				<div class="input-group col-md-4">
-				  <span class="input-group-addon" id="basic-addon5">Password:</span>
-				  <input type="password" name="Password" class="form-control" aria-describedby="basic-addon5">
-				</div>
-			</div>
-			<br-->
-
-			<input type="submit" class="btn btn-primary" value="Оформить заказ" />
-		}
+		
 	}
 }

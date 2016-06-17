@@ -9,57 +9,63 @@
 
 		using (Html.BeginForm(null, null, FormMethod.Get, attributes))
 		{
-		<div class="form-horizontal">
+		<div class="form-horizontal filters">
 			<fieldset class="form-group">
-				<legend class="col-sm-1 control-label">Categories</legend>
+				<legend class="categories">Categories</legend><ul>
 				@{
 					foreach (CCategory cat in catalog.Categories)
 					{
-						<a class="nav-link" href="/goods/@cat.CategoryId">@cat.Category &nbsp;</a>
+						<li><a href="/goods/@cat.CategoryId">@cat.Category &nbsp; <span class="count">(12)</span></a></li>
 					}
 				 }
+				</ul>
 				
-				<br clear="all"/>
-				<legend class="col-sm-1 control-label">Brands</legend>
-				<div class="checkbox checkboxlist col-sm-9">
-					@{
-						var brValues = Request.QueryString.GetValues("brand");
-						foreach (CBrand br in catalog.Brands)
-						{
-							<label>
-							@{
-								bool bchecked = false;
+				<legend class="categories">Refine <span class="clearall">Clear all</span></legend>
+				
+				<a class="filter-title" role="button" data-toggle="collapse" href="#collapseBrands" aria-expanded="true" aria-controls="collapseBrands">Brands <span></span></a>
+				
+				<div class="collapse in" id="collapseBrands">
+				  <div class="checkbox checkboxlist">
+						@{
+							var brValues = Request.QueryString.GetValues("brand");
+							foreach (CBrand br in catalog.Brands)
+							{
+								
+								
+									bool bchecked = false;
 
-								if (brValues != null)
-								{
-									foreach (String item in brValues)
+									if (brValues != null)
 									{
-										if (item == br.Brand)
+										foreach (String item in brValues)
 										{
-											bchecked = true;
-											break;
+											if (item == br.Brand)
+											{
+												bchecked = true;
+												break;
+											}
 										}
 									}
-								}
 
-								if (bchecked)
-								{
-									<input type="checkbox" name="brand" checked="@br.Brand" value="@br.Brand"/> @br.Brand
-								}
-								else
-								{
-									<input type="checkbox" name="brand" value="@br.Brand"/> @br.Brand
-								}
+									if (bchecked)
+									{
+										<span class="checked"><input  type="checkbox" name="brand" checked="@br.Brand" value="@br.Brand"/> @br.Brand</span>
+									}
+									else
+									{
+										<span><input type="checkbox" name="brand" value="@br.Brand"/> @br.Brand</span>
+									}
 
+								
+								
 							}
-							</label>
 						}
-					}
+					</div>
 				</div>
-				<br clear="all"/>
-
-				<legend class="col-sm-1 control-label">Price range</legend>
-				<b>@catalog.PriceMin</b>
+				<div class="clear"></div>
+				
+				<a class="filter-title" role="button" data-toggle="collapse" href="#collapsePrice" aria-expanded="true" aria-controls="collapsePrice">Price range <span></span></a>
+				<div class="collapse in" id="collapsePrice">
+					<div id="slider-range"></div>
 					@{
 						string minp = catalog.PriceMin.ToString();
 						string maxp = catalog.PriceMax.ToString();
@@ -72,45 +78,52 @@
 							maxp = Request.QueryString["priceMax"];
 						}
 					}
-					<input name="priceMin" type="text" class="span2" value="@minp"/> 
-					<input name="priceMax" type="text" class="span2" value="@maxp"/>
-				<b>@catalog.PriceMax</b>
-				<br clear="all"/>
+					<span class="price-min">&euro; <input name="priceMin" type="text"  value="@minp"/> </span>
+					<span class="price-max">&euro; <input name="priceMax" type="text"  value="@maxp"/></span>
 
+				 
+					
+					
+					
+					</div>
+				<div class="clear"></div>
 				
-				<div class="checkbox checkboxlist col-sm-9">
 					@{
+					
 						foreach (CFilter f in catalog.Filters)
 						{
-							<legend class="col-sm-1 control-label">@f.Name</legend>
-							<label>
+							if(f.Values.Count() > 0) {
+							<a class="filter-title collapsed" role="button" data-toggle="collapse" href="#collapseParam_@f.PropertyId" aria-expanded="false" aria-controls="collapseParam@f.PropertyId">@f.Name <span></span></a>
+	
+							<div class="collapse" id="collapseParam_@f.PropertyId">
+							<div class="checkbox checkboxlist">
 							@{
 								foreach (CValue v in f.Values)
 								{
 									string vals = Request.QueryString.Get("f_" + f.PropertyId);
 									if (vals!= null && vals.Contains(v.ValueId.ToString()))
 									{
-										<input type="checkbox" name="f_@f.PropertyId" checked="@v.ValueId" value="@v.ValueId"/> @v.Value
+										<span class="checked"><input type="checkbox" name="f_@f.PropertyId" checked="@v.ValueId" value="@v.ValueId"/> @v.Value</span>
 									}
 									else
 									{
-										<input type="checkbox" name="f_@f.PropertyId" value="@v.ValueId"/> @v.Value
+										<span><input type="checkbox" name="f_@f.PropertyId" value="@v.ValueId"/> @v.Value</span>
 									}
 								}
 							}
-							</label>
-							<br clear="all"/>
-
+							</div>
+							</div>
+							<div class="clear"></div>
+						}
 						}
 					}
-				</div>
-						
+				
+					
 						
 			</fieldset>
-			<input type="button" name="submitFilter" value="Apply filter" onclick="$('#filterForm')[0].submit();"/> 
 		</div>
+		<button type="submit" class="filter-apply" >Apply</button>
 		}
 	}
 }
-
-@{ Html.RenderPartial("Pager", new ViewDataDictionary { { "catalog", catalog } }); }
+  

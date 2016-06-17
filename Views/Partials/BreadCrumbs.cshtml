@@ -1,5 +1,5 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
-<div>
+<div class="row"><ol class="breadcrumb">
 @{
 	
 	int? catId = null;
@@ -16,11 +16,12 @@
 	string comma = "";
 	foreach(CCategory cr in crumbs)
 	{
-		@comma<a href="/goods/@cr.CategoryId">@cr.Category</a>
+		<li><a href="/goods/@cr.CategoryId">@cr.Category</a></li>
 			if (comma.Length == 0)
 			{
 				comma = ", ";
 			}
 	}
 }	
+</ol>
 </div>

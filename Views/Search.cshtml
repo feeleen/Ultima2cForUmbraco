@@ -72,6 +72,8 @@
 	}
 }
 
+@{ Html.RenderPartial("SearchBox"); }
+
 @{ Html.RenderPartial("GoodList", new ViewDataDictionary { { "catalog", catalog } }); }
 
 @{

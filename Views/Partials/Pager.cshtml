@@ -1,17 +1,39 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
-
-<div>
+<nav class="pager">
+  <ul class="pagination">
+    <li>
+      <a href="#" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+   
 @{
 	CCatalog catalog = (CCatalog)ViewData["catalog"];
     if (catalog != null)
 	{
-		string pg = Request.QueryString["pageNo"];
-
-		for (int k = 1; k < (catalog.PagesOverall+1); k++  )
+		int pg = 1;
+		if(Request.QueryString["pageNo"] != null) {
+			pg = int.Parse(Request.QueryString["pageNo"]);
+		}
+		
+		
+		int start = 1;
+		if (( pg - 5 ) > 0)
 		{
-			if (pg == k.ToString())
+			start = (pg-5);
+		}
+		
+		int end = catalog.PagesOverall;
+		if ((pg + 5) < catalog.PagesOverall)
+		{
+			end = pg+5;
+		}
+		
+		for (int k = start; k < end; k++  )
+		{
+			if (pg == k)
 			{
-				<b>@k</b>
+				<li class="active"><a>@k</a></li>
 			}
 			else
 			{	
@@ -20,9 +42,15 @@
 				{
 					newQuery += "&pageNo=" + k;
 				}
-				<a href="?@newQuery">@k</a>
+				<li><a href="?@newQuery">@k</a></li>
 			}
 		}
 	}
 }
-</div>
+<li>
+      <a href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>

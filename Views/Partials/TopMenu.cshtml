@@ -8,52 +8,91 @@
 *@
 
 @{ var selection = CurrentPage.Site().Children.Where("Visible &&  Name != \"Good\"  &&  Name != \"GoodPhoto\""); }
-
-<div>
-<nav class="navbar navbar-light bg-faded">
-	<a class="navbar-brand" href="/">Ultima2c Demo</a>
-	<ul class="nav nav-pills">
-		@foreach (var item in selection)
-		{
-			if (@item.Name == "Basket")
-			{
-				decimal total = 0;
-				System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
-				foreach(int key in basket.Keys)
+<ul class="nav navbar-nav">
+@foreach (var item in selection)
+{
+	if (@item.Name == "Basket")
+	{
+		
+		
+		
+	}
+	else if (@item.Name == "Goods")
+	{
+		<li><a href="#" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">Каталог <span class="glyphicon glyphicon-menu-down"></span></a>
+			
+				
+			
+			<ul class="dropdown-menu">
+			@{
+				List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
+				foreach (CCategory cat in rootCats)
 				{
-					if (key > 0)
-					{
-						total += basket[key] * basket[-key];
-					}
+					<li><a href="/Goods/@cat.CategoryId">@cat.Category</a></li>
 				}
-				<li class="nav-item pull-right">
-					<a href="@item.Url" class="nav-link @{ if (@item.Id == CurrentPage.Id) {@Html.Raw("active")}}">@item.Title: <b>@basket.Where(x => x.Key > 0).Sum(x => x.Value)</b> на <b>@total.ToString("### ### ##0")</b> руб.</a>
-				</li>
 			}
-			else if (@item.Name == "Goods")
-			{
-				<button type="button" class="btn nav-link nav-item pull-right btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					Каталог
-				</button>
-				
-					List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
-				
-				<div class="dropdown-menu">
-				@{
-					foreach (CCategory cat in rootCats)
-					{
-						<a class="dropdown-item" href="/Goods/@cat.CategoryId">@cat.Category</a>
-					}
-				}
-				</div>
-			}
-			else
-			{
-				<li class="nav-item">
-					<a href="@item.Url" class="nav-link @{ if (@item.Id == CurrentPage.Id) {@Html.Raw("active")}}">@item.Title</a></li>
-			}
+			</ul>
+		</li>
+	}
+	else
+	{
+		<li>
+			<a href="@item.Url" class="@{ if (@item.Id == CurrentPage.Id) {@Html.Raw("active")}}">@item.Title</a>
+		</li>
+	}
+}
+</ul>
+@{
+	decimal total = 0;
+	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
+	foreach(int key in basket.Keys)
+	{
+		if (key > 0)
+		{
+			total += basket[key];
+			
 		}
-	</ul>
-</nav>
-<br clear="all"/>
-</div>
+	}	
+}  
+<ul class="nav navbar-nav navbar-right ligth-cart">
+	<li class="dropdown">
+	  <a href="/basket" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0"><span class="glyphicon shopping-cart"></span> <i>My</i>Cart <i>(@total)</i> <span class="glyphicon glyphicon-menu-down"></span></a>
+	  <ul class="dropdown-menu basket-list">
+		@{
+			if(total>0) {
+				
+					decimal itog = 0;
+					foreach(int key in basket.Keys)
+					{
+						if (key > 0)
+						{
+							var good_info = UltimaWebService.GetProductInfo(key);
+							var price = UltimaWebService.GetProductPrice(key);
+							itog += price;
+							<li>
+								@using (Html.BeginForm())
+								{
+									<input type="hidden" name="DeleteItem" value="@key"/>
+									<input type="submit" class="remove" value="Удалить" />
+								}
+								<a href="/good/@key">@good_info.Name</a>
+								<span class="price">&euro; @price</span>
+								<span class="count">x @basket[key]</span>
+							</li>
+						}
+					}
+					<li class="last">
+						<span class="price">&euro; @itog</span>
+						<a href="/basket">View MyCart</a>
+						<div class="clear"></div>
+					</li>
+							
+			}else {
+				<li class="last">
+					Empty cart
+				</li>
+			}	
+		}	
+	  </ul>	
+	</li>
+</ul>		  

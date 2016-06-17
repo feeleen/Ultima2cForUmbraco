@@ -27,63 +27,84 @@
 }
 
 @{ 
-	<h3>New goods</h3>
-	<table  class="table table-hover">
-		<thead>
-			<tr>
-				<th></th>
-				<th style="width:80%"></th>
-				<th></th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-	
-	@{
-		if (catalog != null && catalog.Products!= null)
-		{
-			int i = 0;
-			foreach(CProduct prod in catalog.Products)
+	<div id="best-products" class="products slider">
+	<h2>Best products</h2> 
+	  <ul class="products-inner">
+		  @{
+			if (catalog != null && catalog.Products!= null)
 			{
-				i++;
-				if (i > 30)
+				int i = 0;
+				foreach(CProduct prod in catalog.Products)
 				{
-					break;
-				}	
-				var goodID = prod.ProdId;
-				<tr>
-					<th scope="row">
-						<img class="card-img pull-left" src="/goodphoto/@goodID" width="150"/>	
-					</th>
-					<td>
-						<a href="/good/@goodID">
-							<h4>
-							@prod.Name</h4></a>
-					</td>
-					<td style="min-width:200px">
-						<h4><b>@UltimaWebService.GetProductPrice(goodID)</b> руб.</h4>
-					</td>
-					<td>
-
-					@using (Html.BeginForm())
+					i++;
+					if (i > 30)
 					{
-						<div class="input-group" style="max-width:300px">
-							<input type="hidden" name="GoodID" value="@goodID"/>
-							<input type="hidden" name="AddQuantity" value="1"/>
-							<span class="input-group-btn">
-								<input type="submit" name="submitAdd" class="btn btn-primary" value="Купить!" />
-							</span>
-						</div>
-
-					}
-
-					</td>
-				</tr>
+						break;
+					}	
+					var goodID = prod.ProdId;
+					
+					<li class="item">
+						<div class="products-caption">
+						<a href="/good/@goodID">
+							<div class="img">
+								<img src="/goodphoto/@goodID" alt="...">
+							</div>
+							<p>@prod.Name</p>
+							<span class="price">
+								<span class="glyphicon glyphicon-ru"></span>&euro; @UltimaWebService.GetProductPrice(goodID)</span>
+						</a>
+						
+					  </div>
+					</li>
+				}
 			}
 		}
-	}
-		</tbody>
-	</table>
+		
+	  </ul>
+
+	  <a class="prev-button"></a>
+		<a class="next-button"></a>
+	</div>
+	
+	
+	<div id="new-products" class="products slider">
+	<h2>New products</h2> 
+	  <ul class="products-inner">
+		  @{
+			if (catalog != null && catalog.Products!= null)
+			{
+				int i = 0;
+				foreach(CProduct prod in catalog.Products)
+				{
+					i++;
+					if (i > 30)
+					{
+						break;
+					}	
+					var goodID = prod.ProdId;
+					
+					<li class="item">
+						<div class="products-caption">
+						<a href="/good/@goodID">
+							<div class="img">
+								<img src="/goodphoto/@goodID" alt="...">
+							</div>
+							<p>@prod.Name</p>
+							<span class="price">
+								<span class="glyphicon glyphicon-ru"></span> @UltimaWebService.GetProductPrice(goodID) руб.</span>
+						</a>
+						
+					  </div>
+					</li>
+				}
+			}
+		}
+		
+	  </ul>
+
+	  <a class="prev-button"></a>
+		<a class="next-button"></a>
+	</div>
 			
 }
 
