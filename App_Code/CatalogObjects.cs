@@ -31,6 +31,7 @@ public class CCategory
 	public string Category { get; set; }
 	public string CategoryAlias { get; set; }
 	public string BuyName { get; set; }
+	public int RecordsCnt { get; set; }
 }
 
 public class CBrand
