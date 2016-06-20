@@ -2,7 +2,7 @@
 
 @{
 	SessionTrace trc = SessionTrace.Current;
-	if (trc!= null)
+	if (trc!= null && Convert.ToBoolean(System.Web.Configuration.WebConfigurationManager.AppSettings[Ultima.InstallHelpers.ShowTraceKey]))
 	{
 		<div>
 		@foreach(string e in trc.List)

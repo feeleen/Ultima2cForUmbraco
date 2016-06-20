@@ -2,7 +2,7 @@
 
 @{
 	SessionErrors err = SessionErrors.Current;
-	if (err!= null)
+	if (err!= null && Convert.ToBoolean(System.Web.Configuration.WebConfigurationManager.AppSettings[Ultima.InstallHelpers.ShowErrorsKey]))
 	{
 		<div>
 		@foreach(string e in err.List)

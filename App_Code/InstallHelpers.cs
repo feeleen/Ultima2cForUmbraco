@@ -22,6 +22,8 @@ namespace Ultima
 		public const string GoodPhotoNodeIDKey = "Ultima.GoodPhotoNodeID";
 		public const string CategoryNodeIDKey = "Ultima.CategoryNodeID";
 		public const string UltimaWebServiceURL = "Ultima.WebServiceURL";
+		public const string ShowTraceKey = "Ultima.ShowTrace";
+		public const string ShowErrorsKey = "Ultima.ShowErrors";
 
 		public static void PublishContentNodes()
 		{
@@ -68,10 +70,10 @@ namespace Ultima
             var sectionService = applicationContext.Services.SectionService;
 
 			//Try & find a section with the alias of "ultimaSection"
-			var analyticsSection = sectionService.GetSections().SingleOrDefault(x => x.Alias.ToLower() == "ultima");
+			var ultimaSection = sectionService.GetSections().SingleOrDefault(x => x.Alias.ToLower() == "ultima");
 
             //If we can't find the section - doesn't exist
-            if (analyticsSection == null)
+            if (ultimaSection == null)
             {
                 //So let's create it the section
                 sectionService.MakeNew("Ultima", "ultima", "icon-equalizer");
@@ -80,12 +82,16 @@ namespace Ultima
 
 		public static void RemoveAppConfigSections()
 		{
+			var webConfig = WebConfigurationManager.OpenWebConfiguration("/");
 			//Remove AppSetting key when all done
-			ConfigurationManager.AppSettings.Remove(InstallHelpers.AppSettingKey);
-			ConfigurationManager.AppSettings.Remove(InstallHelpers.GoodNodeIDKey);
-			ConfigurationManager.AppSettings.Remove(InstallHelpers.GoodPhotoNodeIDKey);
-			ConfigurationManager.AppSettings.Remove(InstallHelpers.CategoryNodeIDKey);
-			ConfigurationManager.AppSettings.Remove(InstallHelpers.UltimaWebServiceURL);
+			webConfig.AppSettings.Settings.Remove(InstallHelpers.AppSettingKey);
+			webConfig.AppSettings.Settings.Remove(InstallHelpers.GoodNodeIDKey);
+			webConfig.AppSettings.Settings.Remove(InstallHelpers.GoodPhotoNodeIDKey);
+			webConfig.AppSettings.Settings.Remove(InstallHelpers.CategoryNodeIDKey);
+			webConfig.AppSettings.Settings.Remove(InstallHelpers.UltimaWebServiceURL);
+			webConfig.AppSettings.Settings.Remove(InstallHelpers.ShowTraceKey);
+			webConfig.AppSettings.Settings.Remove(InstallHelpers.ShowErrorsKey);
+			webConfig.Save();
 		}
 
 		public static void AddAppConfigSections()
@@ -118,6 +124,8 @@ namespace Ultima
 
 			webConfig.AppSettings.Settings.Add(InstallHelpers.AppSettingKey, true.ToString());
 			webConfig.AppSettings.Settings.Add(InstallHelpers.UltimaWebServiceURL, "localhost:8080");
+			webConfig.AppSettings.Settings.Add(InstallHelpers.ShowErrorsKey, false.ToString());
+			webConfig.AppSettings.Settings.Add(InstallHelpers.ShowTraceKey, false.ToString());
 			webConfig.Save();
 		}
 
@@ -130,12 +138,12 @@ namespace Ultima
 			var services = UmbracoContext.Current.Application.Services;
 
 			//Check to see if the section is still here (should be)
-			var analyticsSection = services.SectionService.GetByAlias("ultima");
+			var ultimaSection = services.SectionService.GetByAlias("ultima");
 
-			if (analyticsSection != null)
+			if (ultimaSection != null)
 			{
 				//Delete the section from the application
-				services.SectionService.DeleteSection(analyticsSection);
+				services.SectionService.DeleteSection(ultimaSection);
 			}
 		}
 
