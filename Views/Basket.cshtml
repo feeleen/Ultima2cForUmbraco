@@ -28,55 +28,59 @@
 			}
 			if (HttpContext.Current.Request["CrateReserve"]!= null)
 			{
-				string email = HttpContext.Current.Request["Email"];
-				string name = HttpContext.Current.Request["Name"];
-				string phone = HttpContext.Current.Request["Phone"];
-				string password = "empty"; //HttpContext.Current.Request["Password"];
-				string address = HttpContext.Current.Request["Address"];
-
-				long agentId = -1;
-				bool isClientEmailExists = UltimaWebService.IsClientExists(email);
-
-				if (!isClientEmailExists)
+				try
 				{
-					agentId= UltimaWebService.CreateAgent( email, name, phone, password, address);
-					if (agentId <= 0)
+					string email = HttpContext.Current.Request["Email"];
+					string name = HttpContext.Current.Request["Name"];
+					string phone = HttpContext.Current.Request["Phone"];
+					string password = "empty"; //HttpContext.Current.Request["Password"];
+					string address = HttpContext.Current.Request["Address"];
+
+					long agentId = -1;
+					bool isClientEmailExists = UltimaWebService.IsClientExists(email);
+
+					if (!isClientEmailExists)
 					{
-						@Html.Raw("Unable to create Agent " + email);
+						agentId= UltimaWebService.CreateAgent( email, name, phone, password, address);
+						if (agentId <= 0)
+						{
+							@Html.Raw("Unable to create Agent " + email);
+						}
+					}
+
+					bool signed = UltimaWebService.SignInAgent( email, password);
+					if (!signed)
+					{
+						@Html.Raw("Unable to sign in Agent " + email);
+					}
+
+					var res = UltimaWebService.CreateReserve();
+
+					long reserveID = Convert.ToInt64(res["Id"]);
+					DateTime deadDate = Convert.ToDateTime(res["DeadDate"]);
+					if (reserveID > 0)
+					{
+						<h1>Cart is empty!</h1>
+						<div class="modal fade" id="OrderSuccess" tabindex="-1" role="dialog" aria-labelledby="OrderSuccessLabel">
+						  <div class="modal-dialog" role="document">
+							<div class="modal-content">
+							 
+							  <div class="modal-body">
+								<h1>Thank you for your order!</h1>
+
+								<p>Number of your order @reserveID</p>
+								<p>You can pick up your order @deadDate.ToString()</p><br/>
+							  </div>
+							 
+							</div>
+						  </div>
+						</div>
+						
+						reserveCreated = true;
+						SessionBasket.ClearBasket();
 					}
 				}
-
-				bool signed = UltimaWebService.SignInAgent( email, password);
-				if (!signed)
-				{
-					@Html.Raw("Unable to sign in Agent " + email);
-				}
-
-				var res = UltimaWebService.CreateReserve();
-
-				long reserveID = Convert.ToInt64(res["Id"]);
-				DateTime deadDate = Convert.ToDateTime(res["DeadDate"]);
-				if (reserveID > 0)
-				{
-					<h1>Cart is empty!</h1>
-					<div class="modal fade" id="OrderSuccess" tabindex="-1" role="dialog" aria-labelledby="OrderSuccessLabel">
-					  <div class="modal-dialog" role="document">
-						<div class="modal-content">
-						 
-						  <div class="modal-body">
-							<h1>Thank you for your order!</h1>
-
-							<p>Number of your order @reserveID</p>
-							<p>You can pick up your order @deadDate.ToString()</p><br/>
-						  </div>
-						 
-						</div>
-					  </div>
-					</div>
-					
-					reserveCreated = true;
-					SessionBasket.ClearBasket();
-				}
+				catch{}
 			}
 		}
 		catch (HttpException ex)
