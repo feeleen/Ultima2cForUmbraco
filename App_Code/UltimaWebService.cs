@@ -475,26 +475,38 @@ public class UltimaWebService
 
 		SessionTrace.Add(paramString);
 
-		using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
-		{
-			streamWriter.Write(paramString);
-			streamWriter.Flush();
-			streamWriter.Close();
-		}
-
 		try
 		{
+			using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))
+			{
+				streamWriter.Write(paramString);
+				streamWriter.Flush();
+				streamWriter.Close();
+			}
+
 			var webResponse = (HttpWebResponse)webRequest.GetResponse();
 			return webResponse;
 		}
-		catch (WebException ex)
+		catch (Exception ex)
 		{
-			HttpWebResponse res = (HttpWebResponse)ex.Response;
-			string msg = "Ultima Server error: " + WebUtility.UrlDecode(res.Headers["UltimaErrorText"] + " (" + ex.Message + ", " + webRequest.RequestUri + ", param: " + paramString + "), StatusCode: " + (int)res.StatusCode);
-			SessionErrors.Add(msg);
+			string msg = Log(ex, webRequest.RequestUri.ToString(), paramString);
 			throw new Exception(msg, ex);
 		}
-
-
+	}
+	
+	static string Log(Exception ex, string requestUri, string paramString)
+	{
+		string msg = "Ultima Server error: " + ex.Message + ", " + requestUri + ", param: " + paramString;
+		if (ex is WebException)
+		{
+			HttpWebResponse res = (HttpWebResponse)((WebException)ex).Response;
+			if (res != null)
+			{
+				msg = "Ultima Server error: " + WebUtility.UrlDecode((res == null? " - " : res.Headers["UltimaErrorText"]) + " (" + ex.Message + ", " + requestUri + ", param: " + paramString + "), StatusCode: " + (int)res.StatusCode);
+			}
+		}
+		SessionErrors.Add(msg);
+		Umbraco.Core.Logging.LogHelper.Info(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType, msg.Replace("{","{{").Replace("}","}}"));
+		return msg;
 	}
 }

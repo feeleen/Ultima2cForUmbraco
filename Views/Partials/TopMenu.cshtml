@@ -25,11 +25,15 @@
 			
 			<ul class="dropdown-menu">
 			@{
-				List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
-				foreach (CCategory cat in rootCats)
+				try
 				{
-					<li><a href="/Goods/@cat.CategoryId">@cat.Category</a></li>
+					List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
+					foreach (CCategory cat in rootCats)
+					{
+						<li><a href="/Goods/@cat.CategoryId">@cat.Category</a></li>
+					}
 				}
+				catch{}
 			}
 			</ul>
 		</li>
