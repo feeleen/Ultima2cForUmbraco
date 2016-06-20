@@ -117,7 +117,7 @@ namespace Ultima
 			//As we only want this to run once - not every startup of Umbraco
 
 			webConfig.AppSettings.Settings.Add(InstallHelpers.AppSettingKey, true.ToString());
-			webConfig.AppSettings.Settings.Add(InstallHelpers.UltimaWebServiceURL, "localhost:8337");
+			webConfig.AppSettings.Settings.Add(InstallHelpers.UltimaWebServiceURL, "localhost:8080");
 			webConfig.Save();
 		}
 

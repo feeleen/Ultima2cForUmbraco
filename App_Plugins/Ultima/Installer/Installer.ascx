@@ -2,10 +2,11 @@
 
 <asp:Panel runat="server" ID="InstallerInfoPanel">
 
-	<asp:Label runat="server" ID="InstallerLabel"></asp:Label><br/>
-	
-	<asp:Button runat="server" ID="CompleteInstallationButton" OnClick="CompleteInstallationButton_Click" Text="Installation: Step 2"></asp:Button><br/>
-
+	<asp:Panel runat="server" id="StepPanel">
+		<asp:Label runat="server" ID="InstallerLabel"></asp:Label><br/>
+		
+		<asp:Button runat="server" ID="CompleteInstallationButton" OnClick="CompleteInstallationButton_Click" Text="Installation: Step 2"></asp:Button><br/>
+	</asp:Panel>
 	<asp:Label runat="server" ID="InstallerLabelResult"></asp:Label>
 	
 
