@@ -15,7 +15,7 @@
 				@{
 					foreach (CCategory cat in catalog.Categories)
 					{
-						<li><a href="/goods/@cat.CategoryId">@cat.Category &nbsp; <span class="count">(12)</span></a></li>
+						<li><a href="/goods/@cat.CategoryId">@cat.Category &nbsp; <span class="count">(@cat.RecordsCnt)</span></a></li>
 					}
 				 }
 				</ul>
@@ -48,11 +48,11 @@
 
 									if (bchecked)
 									{
-										<span class="checked"><input  type="checkbox" name="brand" checked="@br.Brand" value="@br.Brand"/> @br.Brand</span>
+										<span class="checked"><input  type="checkbox" name="brand" checked="@br.Brand" value="@br.Brand"/> @br.Brand (@br.RecordsCnt)</span>
 									}
 									else
 									{
-										<span><input type="checkbox" name="brand" value="@br.Brand"/> @br.Brand</span>
+										<span><input type="checkbox" name="brand" value="@br.Brand"/> @br.Brand (@br.RecordsCnt)</span>
 									}
 
 								
@@ -103,11 +103,11 @@
 									string vals = Request.QueryString.Get("f_" + f.PropertyId);
 									if (vals!= null && vals.Contains(v.ValueId.ToString()))
 									{
-										<span class="checked"><input type="checkbox" name="f_@f.PropertyId" checked="@v.ValueId" value="@v.ValueId"/> @v.Value</span>
+										<span class="checked"><input type="checkbox" name="f_@f.PropertyId" checked="@v.ValueId" value="@v.ValueId"/> @v.Value (@v.RecordsCnt)</span>
 									}
 									else
 									{
-										<span><input type="checkbox" name="f_@f.PropertyId" value="@v.ValueId"/> @v.Value</span>
+										<span><input type="checkbox" name="f_@f.PropertyId" value="@v.ValueId"/> @v.Value (@v.RecordsCnt)</span>
 									}
 								}
 							}
