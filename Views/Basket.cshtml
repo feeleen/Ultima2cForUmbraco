@@ -54,7 +54,7 @@
 						@Html.Raw("Unable to sign in Agent " + email);
 					}
 
-					var res = UltimaWebService.CreateReserve();
+					var res = UltimaWebService.CreateReserve(agentId, address);
 
 					long reserveID = Convert.ToInt64(res["Id"]);
 					DateTime deadDate = Convert.ToDateTime(res["DeadDate"]);

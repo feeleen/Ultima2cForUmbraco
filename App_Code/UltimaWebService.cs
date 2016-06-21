@@ -392,7 +392,7 @@ public class UltimaWebService
 		Hashtable pars = new Hashtable();
 		pars["Email"] = email;
 		pars["FirstName"] = name;
-		pars["LastName"] = address;
+		pars["LastName"] = "-";
 		pars["MiddleName"] = "";
 		pars["ParentMlmClientId"] = 9;
 		pars["Password"] = password;
@@ -403,7 +403,7 @@ public class UltimaWebService
 		return Convert.ToInt64(doc.DocumentElement.SelectSingleNode(String.Format("{0}:Id", doc.GetPrefix()), nsmgr).InnerText);
 	}
 
-	public static Dictionary<string, string> CreateReserve()
+	public static Dictionary<string, string> CreateReserve(long agentId, string address)
 	{
 		Dictionary<string, string> res = new Dictionary<string, string>();
 
@@ -423,9 +423,10 @@ public class UltimaWebService
 
 		Hashtable pars = new Hashtable();
 		pars["Articles"] = prodInfo;
+		pars["AgentId"] = agentId;
 		pars["ReserveOfficeId"] = 1;
-		pars["ObtainMethod"] = "ownStorePickup"; // some magic hardcoded value in ultima2c..
-
+		pars["ObtainMethod"] = "simplified_shipping"; // ownStorePickup, simplified_shipping - some magic hardcoded values in ultima2c..
+		pars["ShippingAddress"] = address;
 
 		XmlDocument doc = GetXmlResponse("CreateReserve", pars);
 		XmlNamespaceManager nsmgr = doc.NsMan();
