@@ -22,7 +22,14 @@ public struct SortField
 	public const string Price = "price";
 }
 
-
+public class COrder
+{
+    public int Amount { get; set; }
+    public DateTime DeadDate { get; set; }
+    public int Id { get; set; }
+    public bool OutOfStock { get; set; }
+    public int Version { get; set; }
+}
 
 
 public class CCategory

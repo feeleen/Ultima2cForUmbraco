@@ -54,11 +54,9 @@
 						@Html.Raw("Unable to sign in Agent " + email);
 					}
 
-					var res = UltimaWebService.CreateReserve(agentId, address);
+					COrder order = UltimaWebService.CreateReserve(agentId, address);
 
-					long reserveID = Convert.ToInt64(res["Id"]);
-					DateTime deadDate = Convert.ToDateTime(res["DeadDate"]);
-					if (reserveID > 0)
+					if (order!= null && order.Id > 0)
 					{
 						<h1>Cart is empty!</h1>
 						<div class="modal fade" id="OrderSuccess" tabindex="-1" role="dialog" aria-labelledby="OrderSuccessLabel">
@@ -68,8 +66,8 @@
 							  <div class="modal-body">
 								<h1>Thank you for your order!</h1>
 
-								<p>Number of your order @reserveID</p>
-								<p>You can pick up your order @deadDate.ToString()</p><br/>
+								<p>Number of your order @order.Id</p>
+								<p>You can pick up your order @order.DeadDate.ToString()</p><br/>
 							  </div>
 							 
 							</div>
@@ -79,8 +77,14 @@
 						reserveCreated = true;
 						SessionBasket.ClearBasket();
 					}
+					else
+					{
+					}
 				}
-				catch{}
+				catch(Exception ex)
+				{
+					SessionErrors.Add(ex);
+				}
 			}
 		}
 		catch (HttpException ex)

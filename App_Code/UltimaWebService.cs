@@ -155,7 +155,7 @@ public class UltimaWebService
 		}
 		catch (Exception ex)
 		{
-			SessionErrors.Add(ex.Message + Environment.NewLine + ex.StackTrace);
+			SessionErrors.Add(ex);
 			throw;
 		}
 	}
@@ -403,38 +403,45 @@ public class UltimaWebService
 		return Convert.ToInt64(doc.DocumentElement.SelectSingleNode(String.Format("{0}:Id", doc.GetPrefix()), nsmgr).InnerText);
 	}
 
-	public static Dictionary<string, string> CreateReserve(long agentId, string address)
+	public static COrder CreateReserve(long agentId, string address)
 	{
-		Dictionary<string, string> res = new Dictionary<string, string>();
-
-		var basket = SessionBasket.GetBasket();
-
-		ArticleInfo[] prodInfo = new ArticleInfo[basket.Where(x => x.Key > 0).Count()];
-
-		int i = 0;
-		foreach (var key in basket.Keys)
+		try
 		{
-			if (key > 0)
+			Dictionary<string, string> res = new Dictionary<string, string>();
+
+			var basket = SessionBasket.GetBasket();
+
+			ArticleInfo[] prodInfo = new ArticleInfo[basket.Where(x => x.Key > 0).Count()];
+
+			int i = 0;
+			foreach (var key in basket.Keys)
 			{
-				prodInfo[i] = new ArticleInfo(key, basket[key]);
-				i++;
-			}
-        } 
+				if (key > 0)
+				{
+					prodInfo[i] = new ArticleInfo(key, basket[key]);
+					i++;
+				}
+			} 
 
-		Hashtable pars = new Hashtable();
-		pars["Articles"] = prodInfo;
-		pars["AgentId"] = agentId;
-		pars["ReserveOfficeId"] = 1;
-		pars["ObtainMethod"] = "simplified_shipping"; // ownStorePickup, simplified_shipping - some magic hardcoded values in ultima2c..
-		pars["ShippingAddress"] = address;
+			Hashtable pars = new Hashtable();
+			pars["Articles"] = prodInfo;
+			//pars["AgentId"] = agentId; // agentid will be taken from session by the server!
+			pars["ReserveOfficeId"] = 1;
+			pars["ObtainMethod"] = "simplified_shipping"; // ownStorePickup, simplified_shipping - some magic hardcoded values in ultima2c..
+			pars["ShippingAddress"] = address;
 
-		XmlDocument doc = GetXmlResponse("CreateReserve", pars);
-		XmlNamespaceManager nsmgr = doc.NsMan();
+			string resp = GetTextResponse("CreateReserve", pars);
+			SessionTrace.Add("Create Reserve response:" + resp);
 
-		string reserveID = doc.DocumentElement.SelectSingleNode(String.Format("{0}:Id", doc.GetPrefix()), nsmgr).InnerText;
-		string deadDate = doc.DocumentElement.SelectSingleNode(String.Format("{0}:DeadDate", doc.GetPrefix()), nsmgr).InnerText;
-
-		return new Dictionary<string, string> { { "Id", reserveID }, { "DeadDate", deadDate } };
+			COrder order = JsonConvert.DeserializeObject<COrder>(resp);
+				
+			return order;
+		}
+		catch (Exception ex)
+		{
+			SessionErrors.Add(ex);
+			throw;
+		}
 	}
 
  	public static XmlDocument GetXmlResponse(string method)

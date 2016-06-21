@@ -18,6 +18,16 @@ public class SessionErrors
 		}
 	}
 
+	public static void Add(Exception ex)
+	{
+		SessionErrors err = Current;
+		lock (err.lockObj)
+		{
+			err.ErrorsList.Add(ex.Message + Environment.NewLine + ex.StackTrace);
+			err.Update();
+		}
+	}
+
 	public static void Add(string error)
 	{
 		SessionErrors err = Current;
