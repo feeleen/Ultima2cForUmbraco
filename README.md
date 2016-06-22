@@ -6,22 +6,20 @@ Umbraco is used as a front-end to show the data taken from Ultima2c via rest api
 
 Put this code into App_Code folder and then you can use UltimaWebService and SessionBasket classes and their methods
 
-More details available at http://feeleen.ru/blog/beta-version-of-a-simple-shop-ultima2c-with-umbraco-7/
+![catalog](https://snag.gy/ncxOwB.jpg)
 
-![catalog](http://feeleen.ru/media/1019/catalog.png?width=500&height=372.35449735449737)
+![item](https://snag.gy/A3QJmv.jpg)
 
-![item](http://feeleen.ru/media/1026/good.png?width=500&height=377.38246505717916)
-
-![basket](http://feeleen.ru/media/1021/basket.png?width=500&height=465.25323910482916)
+![basket](https://snag.gy/A8KbHy.jpg)
 
 
 How to start:
 
 1. Prerequisites
   - Ultima2c (see ultima2c.com)
-  - fresh Umbraco installation (with no starter kits installed!)
+  - fresh Umbraco 7.3.4 installation (with no starter kits installed!)
 2. Setup
   1. install package Ultima2cForUmbraco into umbraco, complete full steps of installation 
-  2. republish entire site
+  2. check app.config for proper Ultima2c WebServce URL and port
 3. You're done! Open your site and use it
 
