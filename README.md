@@ -4,8 +4,6 @@ This is a simple code to get started with building e-commerce web-site based on 
 
 Umbraco is used as a front-end to show the data taken from Ultima2c via rest api (json)
 
-Put this code into App_Code folder and then you can use UltimaWebService and SessionBasket classes and their methods
-
 ![catalog](https://snag.gy/GPuznF.jpg)
 
 ![item](https://snag.gy/A3QJmv.jpg)
