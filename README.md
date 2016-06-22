@@ -18,6 +18,6 @@ How to start:
   - fresh Umbraco 7.3.4 installation (with no starter kits installed!)
 2. Setup
   1. install package Ultima2cForUmbraco into umbraco, complete full steps of installation 
-  2. check app.config for proper Ultima2c WebServce URL and port
+  2. check web.config for proper Ultima2c WebServce URL and port
 3. You're done! Open your site and use it
 
