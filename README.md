@@ -14,7 +14,7 @@ Umbraco is used as a front-end to show the data taken from Ultima2c via rest api
 How to start:
 
 1. Prerequisites
-  - Ultima2c (see ultima2c.com)
+  - Ultima2c version 5.6.0.0 and upper (see ultima2c.com)
   - fresh Umbraco 7.3.4 installation (with no starter kits installed!)
 2. Setup
   1. install package Ultima2cForUmbraco into umbraco, complete full steps of installation 
