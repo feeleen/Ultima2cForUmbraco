@@ -59,6 +59,21 @@ namespace Ultima
 			TranslationHelper.RemoveTranslations();
 		}
 
+		public static void AddHttpModule()
+		{
+			var webConfig = WebConfigurationManager.OpenWebConfiguration("/");
+			var modules = webConfig.GetSection("system.web/httpModules") as HttpModulesSection;
+			modules.Modules.Add(new HttpModuleAction("UltimaMembershipHttpModule", "UltimaMembershipHttpModule, App_Code"));
+			webConfig.Save();
+		}
+
+		public static void RemoveHttpModule()
+		{
+			var webConfig = WebConfigurationManager.OpenWebConfiguration("/");
+			var modules = webConfig.GetSection("system.web/httpModules") as HttpModulesSection;
+			modules.Modules.Remove("UltimaMembershipHttpModule");
+			webConfig.Save();
+		}
 
 		/// <summary>
 		/// Adds the application/custom section to Umbraco

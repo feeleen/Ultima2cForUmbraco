@@ -358,6 +358,12 @@ public class UltimaWebService
 		return img;
 	}
 
+	public static CClientInfo GetClientInfo()
+	{
+		Hashtable pars = new Hashtable();
+		CClientInfo pi = JsonConvert.DeserializeObject<CClientInfo>(GetTextResponse("GetClientInfo", pars));
+		return pi;
+	}
 
 	public static bool SignInAgent(string email, string password)
 	{

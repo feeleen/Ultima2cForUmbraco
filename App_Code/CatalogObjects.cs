@@ -140,3 +140,14 @@ public class CProductInfo
 	public int ProdId { get; set; }
 	public List<CProperty> Properties { get; set; }
 }
+
+
+public class CClientInfo
+{
+	public string Email { get; set; }
+	public string FirstName { get; set; }
+	public int Id { get; set; }
+	public string LastName { get; set; }
+	public string MiddleName { get; set; }
+	public string Phone { get; set; }
+}

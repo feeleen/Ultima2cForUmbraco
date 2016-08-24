@@ -11,7 +11,7 @@
 <ul class="nav navbar-nav">
 @foreach (var item in selection)
 {
-	if (@item.Name == "Basket")
+	if (@item.Name == "Basket" || @item.Name == "Cabinet")
 	{
 		
 		
@@ -57,7 +57,10 @@
 			
 		}
 	}	
-}  
+} 
+<ul class="nav navbar-nav navbar-right ligth-cart">
+<li>@{ Html.RenderPartial("Login"); }</li>
+</ul>
 <ul class="nav navbar-nav navbar-right ligth-cart">
 	<li class="dropdown">
 	  <a href="/basket" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0"><span class="glyphicon shopping-cart"></span> <i>My</i>Cart <i>(@total)</i> <span class="glyphicon glyphicon-menu-down"></span></a>

@@ -37,14 +37,15 @@ namespace Ultima
 				//Add Section Dashboard XML
 				InstallHelpers.AddSectionDashboard();
 
+				InstallHelpers.AddHttpModule();
 
 				// we can't do this here (nodes not exists yet):
 				//InstallHelpers.PublishContentNodes();
 				//InstallHelpers.AddAppConfigSections();
-				
+
 			}
 
-			
+
 
 			//Add OLD Style Package Event
 			InstalledPackage.BeforeDelete += InstalledPackage_BeforeDelete;
@@ -104,7 +105,7 @@ namespace Ultima
 				InstallHelpers.RemoveSectionDashboard();
 
 				InstallHelpers.RemoveAppConfigSections();
-				
+				InstallHelpers.RemoveHttpModule();
 			}
         }
     }
