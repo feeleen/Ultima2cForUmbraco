@@ -2,64 +2,42 @@
 
 <div>
 @{
-	CClientInfo info = null;
-	<div>@HttpContext.Current.User.Identity.IsAuthenticated @HttpContext.Current.User.Identity.Name</div>
+	CClientInfo info = SessionClient.GetClientInfo();
+	<div>@HttpContext.Current.User.Identity.IsAuthenticated </div>
 	if (IsPost)
 	{
 		if (Request.Form["submitLogin"] != null)
 		{
-			bool isPersistent = false;
 			string user = Request.Form["user"].Trim();
+			string pwd = Request.Form["pwd"].Trim();
 			
-			bool isSigned = UltimaWebService.SignInAgent(user, Request.Form["pwd"].Trim());
-			
-			if (isSigned)
+			if (SessionClient.SignIn(user, pwd))
 			{
-				info = UltimaWebService.GetClientInfo();
-				SessionClient.SetClientInfo(info);
-
-				string userData = info.Id.ToString();
-
-				FormsAuthenticationTicket ticket = new FormsAuthenticationTicket(
-					1,                                     // ticket version
-					info.FirstName,                              // authenticated username
-					DateTime.Now,                          // issueDate
-					DateTime.Now.AddMinutes(30),           // expiryDate
-					isPersistent,                          // true to persist across browser sessions
-					userData,                              // can be used to store additional user data
-					FormsAuthentication.FormsCookiePath);  // the path for the cookie
-
-				string encryptedTicket = FormsAuthentication.Encrypt(ticket);
-
-				HttpCookie cookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket);
-				cookie.HttpOnly = true; 
-				Response.Cookies.Add(cookie);
-
 				Response.Redirect("/");
 			}
 			else
 			{
-				<div>Failed to sign in user @user</div>
 				SessionErrors.Add("Failed to sign in user " + user);
 			}
 			
 		}
 		else if (Request.Form["submitLogout"] != null)
 		{
-			FormsAuthentication.SignOut();
+			SessionClient.SignOut();
 			Response.Redirect("/");
 		}
 	}
 	
-	
-	
-	info = SessionClient.GetClientInfo();
+	if (info == null)
+	{
+		SessionClient.SignOut();
+	}
 	
 	using (Html.BeginForm())
 	{
-		if (HttpContext.Current.User.Identity.IsAuthenticated)
+		if (HttpContext.Current.User.Identity.IsAuthenticated && info != null)
 		{
-			<text>welcome, <a href="/Cabinet">@info.FirstName</a></text>
+			<text>welcome, <a href="/Cabinet">@info.FirstName</a> </text>
 			<input type="submit" name="submitLogout" value="Logout" />
 		}
 		else
@@ -68,7 +46,6 @@
 			Login: <input name="user" type="text"/><br/>
 			Password: <input name="pwd" type="password"/><input type="submit" name="submitLogin" value="Login" />
 			</div>
-			
 		}
 	}
 }
