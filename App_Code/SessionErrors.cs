@@ -9,6 +9,7 @@ using System.Web;
 public class SessionErrors
 {
 	public const string Key = "CurrentErrors";
+	public const string SettingsKey = "Ultima.ShowErrors";
 	private object lockObj = new object();
 	private List<string> ErrorsList { set; get; }
 	public IReadOnlyCollection<string> List
@@ -18,23 +19,37 @@ public class SessionErrors
 		}
 	}
 
+	public static bool Allowed
+	{
+		get
+		{
+			return Convert.ToBoolean(System.Web.Configuration.WebConfigurationManager.AppSettings[SessionErrors.SettingsKey]);
+		}
+	}
+
 	public static void Add(Exception ex)
 	{
-		SessionErrors err = Current;
-		lock (err.lockObj)
+		if (Allowed)
 		{
-			err.ErrorsList.Add(ex.Message + Environment.NewLine + ex.StackTrace);
-			err.Update();
+			SessionErrors err = Current;
+			lock (err.lockObj)
+			{
+				err.ErrorsList.Add(ex.Message + Environment.NewLine + ex.StackTrace);
+				err.Update();
+			}
 		}
 	}
 
 	public static void Add(string error)
 	{
-		SessionErrors err = Current;
-		lock (err.lockObj)
+		if (Allowed)
 		{
-			err.ErrorsList.Add(error);
-			err.Update();
+			SessionErrors err = Current;
+			lock (err.lockObj)
+			{
+				err.ErrorsList.Add(error);
+				err.Update();
+			}
 		}
 	}
 

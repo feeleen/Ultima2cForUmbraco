@@ -80,44 +80,75 @@ footer .back-to-top{
 }
 
 .navbar{
-	height:118px;
 	background:#fff;
 	margin-bottom:0
 }
 
-.navbar .container {
+.navbar .container-fluid {
 	
 }
 
 .navbar .navbar-brand {
-	padding:0;
-	height:42px
+	padding:0px 10px 0px 10px;
 }
 
 
-.navbar .container .collapse .navbar-nav li a {
+.navbar  .container-fluid .collapse .navbar-nav li a {
 	font-size:16px;
 	color:#32b8dc;
 	background-color:#fff
 }
 
-.navbar .container .collapse .navbar-nav > li {
-	padding-top:34px;
-	margin-bottom:33px
+.navbar .container-fluid .collapse .navbar-nav > li {
+	padding-top:6px;
+	margin-bottom:0px
 }
 
-.navbar .container .collapse .navbar-nav li:hover {
+.navbar .container-fluid .collapse .navbar-nav li:hover {
 	background:#32b8dc
 }
 
-.navbar .container .collapse .navbar-nav li:hover > a{
+.navbar .container-fluid .collapse .navbar-nav li:hover > a{
 	background:#32b8dc;
 	color:#fff
 }
 
-.navbar .container .navbar-header {
-	width:25%;
-	margin-top:34px
+
+li.active, li.active a.active {
+	background:#32b8dc;
+	color:#fff
+}
+
+.navbar  .container-fluid .collapse .navbar-nav li a.active, 
+.navbar .container-fluid .collapse .navbar-nav li > a.active {
+	background:#32b8dc;
+	color:#fff
+}
+span.active {
+	background: url(../img/cart-ico-white.png) 
+}
+
+.navbar .container-fluid .navbar-header {
+	/*width:25%;*/
+	margin-top:5px /* logo height*/
+}
+
+span.cart-btn {
+	font-size:16px;
+	font-weight: normal;
+	padding:2px 20px 0px 20px;
+	/*background-color:#32b8dc*/
+}
+
+span.inactive {
+	background-color:#ddd
+}
+
+.sub, .sub:hover, .sub:hover > a, .sub a:hover .sub a {
+	background:#fff !important
+}
+.sub a, .sub:hover > a, .sub a:hover{
+    color: #32b8dc !important;
 }
 
 section.content {
@@ -258,14 +289,14 @@ footer .copy {
 }
 
 .navbar-nav .dropdown-menu li {
-	font-size:12px;
+	/*font-size:12px;*/
 	line-height:34px;
 	color:#484848;
 	padding:0 0 0 20px
 }
 
 .navbar .container .collapse .navbar-nav .dropdown-menu li a{
-	font-size:12px;
+	/*font-size:12px;*/
 	line-height:34px;
 	color:#484848;
 	background:url(../img/circle.png) 0px 7px no-repeat;
@@ -952,13 +983,22 @@ ul.products-inner .item:hover a {
 	padding:20px
 }
 
-.cart h1 {
-	font-size:22px;
+
+h1, h2, h3 {
 	color:#717171;
 	font-family: 'Conv_BentonSans';
 	text-transform:uppercase;
+}
+h1 {
+	font-size:22px;
 	margin:20px 0
 }
+
+h2 {
+	font-size:18px;
+	margin:16px 0
+}
+
 
 .table-head th {
 	background:#32b8dc;

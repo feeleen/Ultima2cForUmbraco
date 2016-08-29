@@ -1,15 +1,18 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
 
 @{
-	SessionErrors err = SessionErrors.Current;
-	if (err!= null && Convert.ToBoolean(System.Web.Configuration.WebConfigurationManager.AppSettings[Ultima.InstallHelpers.ShowErrorsKey]))
+	if (SessionErrors.Allowed)
 	{
-		<div>
-		@foreach(string e in err.List)
+		SessionErrors err = SessionErrors.Current;
+		if (err!= null)
 		{
-			<p style="color:red">@e</p>
+			<div>
+			@foreach(string e in err.List)
+			{
+				<p style="color:red">@e</p>
+			}
+			</div>
 		}
-		</div>
+		SessionErrors.Reset();
 	}
-	SessionErrors.Reset();
 }

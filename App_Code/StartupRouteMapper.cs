@@ -1,6 +1,7 @@
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
 using Umbraco.Core;
+using Microsoft.Web.Infrastructure.DynamicModuleHelper;
 
 namespace Umbraco
 {

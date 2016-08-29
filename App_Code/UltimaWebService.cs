@@ -22,7 +22,6 @@ public class UltimaWebService
 	private static IDictionary<int?, List<CCategory>> breadCrumbsCache = new Dictionary<int?, List<CCategory>>();
 	private static IDictionary<int?, List<CCategory>> breadCrumbsProductCache = new Dictionary<int?, List<CCategory>>();
 
-	private static byte[] noImageStub = null;
 	private static List<CCategory> rootCategoriesCache = null;
 	private static CookieContainer cookieCont = new CookieContainer();
 
@@ -31,41 +30,11 @@ public class UltimaWebService
 	{
 	}
 
-	public static byte[] GetNoImageStub()
-	{
-		if (noImageStub != null)
-			return noImageStub;
-
-		Image img = DrawText("No image", new Font(FontFamily.GenericSansSerif, 20), Color.DarkGray, Color.LightGray);
-		ImageConverter converter = new ImageConverter();
-		noImageStub = (byte[])converter.ConvertTo(img, typeof(byte[]));
-
-		return noImageStub;
-	}
-
-	public static XmlDocument GetXmlResponse(string method, IDictionary par)
-	{
-		XmlDocument doc = new XmlDocument();
-		using (XmlTextReader reader = new XmlTextReader(GetWebResponse(method, par).GetResponseStream()))
-		{
-			doc.Load(reader);
-		}
-		return doc;
-	}
-
-	public static string GetTextResponse(string method, IDictionary par)
-	{
-		using (var reader = new StreamReader(GetWebResponse(method, "json", par).GetResponseStream(), Encoding.UTF8))
-		{
-			return reader.ReadToEnd();
-		}
-	}
-
 
 	public static string GetProductInfo(long goodID, string dataField)
 	{
 		return GetProductInfo(goodID, dataField, true);
-    }
+	}
 
 
 	public static decimal GetProductPrice(long goodID)
@@ -80,7 +49,7 @@ public class UltimaWebService
 	}
 
 
-    public static int ReloadProductsPrices()
+	public static int ReloadProductsPrices()
 	{
 		XmlDocument doc;
 
@@ -98,7 +67,7 @@ public class UltimaWebService
 			}
 			catch { }
 		}
-		
+
 		return prodPricesCache.Count;
 	}
 
@@ -119,11 +88,11 @@ public class UltimaWebService
 			{
 				prodInfoCacheXML[goodID] = doc;
 			}
-        }
+		}
 		XmlNamespaceManager nsmgr = doc.NsMan();
-		
+
 		return doc.DocumentElement.SelectSingleNode(String.Format("{0}:GetProductsResponse/{0}:{1}", doc.GetPrefix(), dataField), nsmgr).InnerText;
-    }
+	}
 
 	public static CCatalog GetCatalog(int langid, int? CategoryId, string SortField, string SortOrder, int PageSize, int PageNo,
 		string SearchQuery, int?[] BrandId, string[] BrandNames, decimal? PriceFrom, decimal? PriceTo, string Availablity, List<CRequestFilter> filter, DateTime? DateAdded = null)
@@ -146,11 +115,8 @@ public class UltimaWebService
 			pars["BrandNames"] = BrandNames;
 			pars["DateAdded"] = DateAdded;
 
-			string resp = GetTextResponse("GetCatalog", pars);
-			SessionTrace.Add(resp);
+			CCatalog cat = GetObject<CCatalog>("GetCatalog", pars);
 
-			CCatalog cat = JsonConvert.DeserializeObject<CCatalog>(resp);
-			
 			return cat;
 		}
 		catch (Exception ex)
@@ -172,7 +138,7 @@ public class UltimaWebService
 
 		Hashtable pars = new Hashtable();
 		pars["langid"] = langid;
-		rootCategoriesCache = JsonConvert.DeserializeObject<List<CCategory>>(GetTextResponse("GetRootCategories", pars));
+		rootCategoriesCache = GetObject<List<CCategory>>("GetRootCategories", pars);
 		return rootCategoriesCache;
 	}
 
@@ -186,7 +152,7 @@ public class UltimaWebService
 				return breadCrumbsProductCache[prodId];
 			}
 			else if (catId != null && breadCrumbsCache != null && breadCrumbsCache.ContainsKey(catId) && breadCrumbsCache[catId] != null)
-			{ 
+			{
 				return breadCrumbsCache[catId];
 			}
 		}
@@ -194,7 +160,7 @@ public class UltimaWebService
 		pars["langid"] = langid;
 		pars["catid"] = catId;
 		pars["prodid"] = prodId;
-		List<CCategory> crumbs = JsonConvert.DeserializeObject<List<CCategory>>(GetTextResponse("GetCategoryBreadCrumbs", pars));
+		List<CCategory> crumbs = GetObject<List<CCategory>>("GetCategoryBreadCrumbs", pars);
 		if (catId != null)
 		{
 			breadCrumbsCache[catId] = crumbs;
@@ -219,7 +185,7 @@ public class UltimaWebService
 		Hashtable pars = new Hashtable();
 		pars["prodid"] = prodId;
 		pars["langid"] = langid;
-		CProductInfo pi = JsonConvert.DeserializeObject<CProductInfo>(GetTextResponse("GetProductInfo", pars));
+		CProductInfo pi = GetObject<CProductInfo>("GetProductInfo", pars);
 		prodInfoCache[prodId] = pi;
 		return pi;
 	}
@@ -237,28 +203,30 @@ public class UltimaWebService
 		Hashtable pars = new Hashtable();
 		pars["catid"] = catId;
 		pars["langid"] = langid;
-		CCategory pi = JsonConvert.DeserializeObject<CCategory>(GetTextResponse("GetCategoryInfo", pars));
+		CCategory pi = GetObject<CCategory>("GetCategoryInfo", pars);
 		catInfoCache[catId] = pi;
 		return pi;
 	}
 
+
+	#region Product Image Methods
 	public static byte[] GetProductImage(long goodID)
 	{
 		return GetProductImage(goodID, 0, true);
-    }
-	
-	
+	}
+
+
 	public static byte[] GetProductImage(string photoID)
 	{
 		return GetProductImage(photoID, true);
-    }
-	
+	}
+
 	public static byte[] GetProductImage(string photoID, bool useCache)
 	{
 		string[] vals = photoID.Split('_');
 		long goodID = Convert.ToInt64(vals[0]);
 		int viewID = Convert.ToInt32(vals[1]);
-		
+
 		if (useCache && prodPhotoCache.ContainsKey(goodID))
 			return prodPhotoCache[goodID];
 
@@ -266,30 +234,24 @@ public class UltimaWebService
 		if (bytes != null)
 			return bytes;
 		else
-			bytes = GetNoImageStub();
-		
+			bytes = ImageUtility.GetNoImageStub();
+
 		Hashtable pars = new Hashtable();
-		pars["Images"] = new String[] {photoID};
-		CGoodImage[] images = JsonConvert.DeserializeObject<CGoodImage[]>(GetTextResponse("GetImages", pars));
-		if (images == null)
-		{
-			bytes = GetNoImageStub();
-		}	
-		else
+		pars["Images"] = new String[] { photoID };
+		CGoodImage[] images = GetObject<CGoodImage[]>("GetImages", pars);
+		if (images != null)
 		{
 			bytes = images[0].Image;
 			if (bytes != null)
 				DiskCache.WriteImage(bytes, goodID, 0, viewID);
 		}
-		
+
 		if (useCache)
 			prodPhotoCache[goodID] = bytes;
-		
-		return bytes;
-    }
 
-    
-	
+		return bytes;
+	}
+
 	public static byte[] GetProductImage(long goodID, int viewID, bool useCache)
 	{
 		if (useCache && prodPhotoCache.ContainsKey(goodID))
@@ -299,8 +261,8 @@ public class UltimaWebService
 		if (bytes != null)
 			return bytes;
 		else
-			bytes = GetNoImageStub();
-		
+			bytes = ImageUtility.GetNoImageStub();
+
 		Hashtable pars = new Hashtable();
 		pars["ProductIds"] = new long[] { goodID };
 		XmlDocument doc = UltimaWebService.GetXmlResponse("GetProductPhotos", pars);
@@ -328,53 +290,53 @@ public class UltimaWebService
 
 		return bytes;
 	}
-
-	private static Image DrawText(String text, Font font, Color textColor, Color backColor)
-	{
-		Image img = new Bitmap(1, 1);
-		Graphics drawing = Graphics.FromImage(img);
-
-		SizeF textSize = drawing.MeasureString(text, font);
-
-		img.Dispose();
-		drawing.Dispose();
-
-		int width = (int)textSize.Width + 40;
-		int height = width;
-
-		img = new Bitmap(width, width);
-
-		drawing = Graphics.FromImage(img);
-		drawing.Clear(backColor);
-
-		Brush textBrush = new SolidBrush(textColor);
-
-		drawing.DrawString(text, font, textBrush, Convert.ToInt32((width - (int)textSize.Width) / 2), Convert.ToInt32((width - (int)textSize.Height) / 2));
-		drawing.Save();
-
-		textBrush.Dispose();
-		drawing.Dispose();
-
-		return img;
-	}
+	#endregion
 
 	public static CClientInfo GetClientInfo()
 	{
-		Hashtable pars = new Hashtable();
-		CClientInfo pi = JsonConvert.DeserializeObject<CClientInfo>(GetTextResponse("GetClientInfo", pars));
-		return pi;
+		return GetObject<CClientInfo>("GetClientInfo", null);
+	}
+
+	public static bool ConfirmClientPasswordChangeRequest(string hash, string password)
+	{
+		Hashtable res = new Hashtable();
+		res["Hash"] = hash;
+		res["Password"] = password;
+		return GetObject<BoolValue>("ConfirmClientPasswordChangeRequest", null).Value;
+	}
+
+	public static bool UpdateClientInfoFromRequestParameters()
+	{
+		List<string> names = new List<string> { "firstName", "lastName", "phone", "email"};
+		Hashtable pars = GetParmetersFromRequest(names);
+		if (GetObject<BoolValue>("UpdateClientInfo", pars).Value)
+		{
+			SessionClient.GetClientInfo(true);
+			return true;
+		}
+		return false;
+	}
+
+	private static Hashtable GetParmetersFromRequest(List<string> names)
+	{
+		Hashtable res = new Hashtable();
+		foreach (string name in names)
+		{
+			res[name] = GetParameterFromRequest(name);
+		}
+		return res;
+	}
+
+	private static string GetParameterFromRequest(string name)
+	{
+		return HttpContext.Current.Request.Form[name];
 	}
 
 	public static bool SignInAgent(string email, string password)
 	{
-		var doc = GetXmlResponse("SignInClientWithEmail", new Hashtable { { "Email", email }, { "Password", password } });
-		XmlNamespaceManager nsmgr = doc.NsMan();
-
-		if (Convert.ToBoolean(doc.DocumentElement.SelectSingleNode(String.Format("{0}:Success", doc.GetPrefix()), nsmgr).InnerText))
-        {
-			return true;
-		}
-		return false;
+		return GetObject<BoolValue>("SignInClientWithEmail", 
+			new Hashtable { { "Email", email }, { "Password", password } })
+			.Value;
 	}
 
 	public static bool IsClientExists(string email)
@@ -382,13 +344,11 @@ public class UltimaWebService
 		Hashtable pars = new Hashtable();
 		pars["Email"] = email;
 		
-		XmlDocument doc = GetXmlResponse("IsClientExists", pars);
-		XmlNamespaceManager nsmgr = doc.NsMan();
-		return Convert.ToBoolean(doc.DocumentElement.SelectSingleNode(String.Format("{0}:Exists", doc.GetPrefix()), nsmgr).InnerText);
+		return GetObject<BoolValue>("IsClientExists", pars).Value;
 	}
 
 	// CreateAgent("anonymous@ultima2c.com", "Ivan", "999999999", "test");
-	public static long CreateAgent(string email, string name, string phone, string password, string address)
+	public static long CreateAgent(string email, string name, string phone, string password, string address, string lastname = "-")
 	{
 		// first of all we create new default agent for orders (you should change the password!):
 		// http://localhost:8337/CreateClient?format=xml&Email=anonymous@ultima2c.com&FirstName=Anonymous&LastName=None&MiddleName=None&ParentMlmClientId=9&Password=test&Phone=8999999999
@@ -398,15 +358,13 @@ public class UltimaWebService
 		Hashtable pars = new Hashtable();
 		pars["Email"] = email;
 		pars["FirstName"] = name;
-		pars["LastName"] = "-";
+		pars["LastName"] = lastname;
 		pars["MiddleName"] = "";
 		pars["ParentMlmClientId"] = 9;
 		pars["Password"] = password;
 		pars["Phone"] = phone;
 
-		XmlDocument doc = GetXmlResponse("CreateClient", pars);
-		XmlNamespaceManager nsmgr = doc.NsMan();
-		return Convert.ToInt64(doc.DocumentElement.SelectSingleNode(String.Format("{0}:Id", doc.GetPrefix()), nsmgr).InnerText);
+		return GetObject<IdValue>("CreateClient", pars).Id;
 	}
 
 	public static COrder CreateReserve(long agentId, string address)
@@ -431,15 +389,12 @@ public class UltimaWebService
 
 			Hashtable pars = new Hashtable();
 			pars["Articles"] = prodInfo;
-			//pars["AgentId"] = agentId; // agentid will be taken from session by the server!
+			//pars["AgentId"] = agentId; // agentid will be taken from session by the server! do not use this field!
 			pars["ReserveOfficeId"] = 1;
 			pars["ObtainMethod"] = "simplified_shipping"; // ownStorePickup, simplified_shipping - some magic hardcoded values in ultima2c..
 			pars["ShippingAddress"] = address;
 
-			string resp = GetTextResponse("CreateReserve", pars);
-			SessionTrace.Add("Create Reserve response:" + resp);
-
-			COrder order = JsonConvert.DeserializeObject<COrder>(resp);
+			COrder order = GetObject<COrder>("CreateReserve", pars);
 				
 			return order;
 		}
@@ -450,7 +405,50 @@ public class UltimaWebService
 		}
 	}
 
- 	public static XmlDocument GetXmlResponse(string method)
+
+	public static CDocuments GetDocuments(int pageNumber = 1, int recordsPerPage = 20)
+	{
+		Hashtable pars = new Hashtable();
+		pars["PageNumber"] = pageNumber;
+		pars["RecordsPerPage"] = recordsPerPage;
+		return GetObject<CDocuments>("GetReserves", pars);
+	}
+
+	#region Web Request stuff
+
+	public static XmlDocument GetXmlResponse(string method, IDictionary par)
+	{
+		XmlDocument doc = new XmlDocument();
+		using (XmlTextReader reader = new XmlTextReader(GetWebResponse(method, par).GetResponseStream()))
+		{
+			doc.Load(reader);
+		}
+		return doc;
+	}
+
+	public static string GetTextResponse(string method, IDictionary par)
+	{
+		using (var reader = new StreamReader(GetWebResponse(method, "json", par).GetResponseStream(), Encoding.UTF8))
+		{
+			string res = reader.ReadToEnd();
+			SessionTrace.Add(res);
+			return res;
+		}
+	}
+
+	public static T GetObject<T>(string method)
+	{
+		return GetObject<T>(method, null);
+	}
+
+	public static T GetObject<T>(string method, IDictionary pars)
+	{
+		T obj = JsonConvert.DeserializeObject<T>(GetTextResponse(method, pars));
+		return obj;
+	}
+
+
+	public static XmlDocument GetXmlResponse(string method)
 	{
 		return GetXmlResponse(method, null);
 	}
@@ -507,7 +505,9 @@ public class UltimaWebService
 			throw new Exception(msg, ex);
 		}
 	}
-	
+
+	#endregion
+
 	static string Log(Exception ex, string requestUri, string paramString)
 	{
 		string msg = "Ultima Server error: " + ex.Message + ", " + requestUri + ", param: " + paramString;

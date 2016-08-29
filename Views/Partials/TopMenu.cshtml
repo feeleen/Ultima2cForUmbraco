@@ -1,102 +1,108 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
 
+@{ 
+	CClientInfo info = SessionClient.GetClientInfo();
+	var selection = CurrentPage.Site().Children.Where("AppearInTopMenu");
+}
 
-@*
-    This snippet displays a list of links of the pages immediately under the top-most page in the content tree.
-    This is the home page for a standard website.
-    It also highlights the current active page/section in the navigation with the css class "current".
-*@
-
-@{ var selection = CurrentPage.Site().Children.Where("Visible &&  Name != \"Good\"  &&  Name != \"GoodPhoto\""); }
 <ul class="nav navbar-nav">
+
 @foreach (var item in selection)
 {
-	if (@item.Name == "Basket" || @item.Name == "Cabinet")
-	{
-		
-		
-		
-	}
-	else if (@item.Name == "Goods")
-	{
-		<li><a href="#" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">@item.Title <span class="glyphicon glyphicon-menu-down"></span></a>
-			
-				
-			
+	<li>
+	@{
+		if (item.Name == "Goods")
+		{
+			<a href="#" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">@item.Title <span class="glyphicon glyphicon-menu-down"></span></a>
 			<ul class="dropdown-menu">
-			@{
-				try
-				{
-					List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
-					foreach (CCategory cat in rootCats)
+				@{
+					try
 					{
-						<li><a href="/Goods/@cat.CategoryId">@cat.Category</a></li>
+						List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
+						foreach (CCategory cat in rootCats)
+						{
+							<li class="sub"><a href="/Goods/@cat.CategoryId">@cat.Category</a></li>
+						}
+						if (!rootCats.Any())
+						{
+							<li class="sub">No categories</li>
+						}
 					}
+					catch{}
 				}
-				catch{}
-			}
 			</ul>
-		</li>
+		}
+		else
+		{
+			<a href="@item.Url">@item.Title</a>
+		}
 	}
-	else
-	{
-		<li>
-			<a href="@item.Url" class="@{ if (@item.Id == CurrentPage.Id) {@Html.Raw("active")}}">@item.Title</a>
-		</li>
-	}
+	</li>
 }
+
 </ul>
 @{
-	decimal total = 0;
+	decimal totalCount = 0, totalAmount = 0;
+	string cartInactive = "";
 	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
 	foreach(int key in basket.Keys)
 	{
 		if (key > 0)
 		{
-			total += basket[key];
-			
+			decimal itemCount = basket[key];
+			totalCount += itemCount;
+			totalAmount += totalCount * itemCount;
 		}
-	}	
+	}
+	if (totalCount == 0)
+	{
+		cartInactive = "inactive";
+	}
 } 
-<ul class="nav navbar-nav navbar-right ligth-cart">
-<li>@{ Html.RenderPartial("Login"); }</li>
-</ul>
+
 <ul class="nav navbar-nav navbar-right ligth-cart">
 	<li class="dropdown">
-	  <a href="/basket" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0"><span class="glyphicon shopping-cart"></span> <i>My</i>Cart <i>(@total)</i> <span class="glyphicon glyphicon-menu-down"></span></a>
-	  <ul class="dropdown-menu basket-list">
+		@{ Html.RenderPartial("LoginPanel"); }
+	</li>
+	<li class="dropdown">
+		<a href="/basket" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">
+		<span class="glyphicon shopping-cart "></span> MyCart &nbsp;
+		<span class="badge cart-btn @cartInactive" >@totalCount</span> &nbsp;
+		<span class="badge cart-btn @cartInactive" >&euro; @totalAmount </span>&nbsp;&nbsp;
+		<span class="glyphicon glyphicon-menu-down"></span></a>
+	  	<ul class="dropdown-menu basket-list">
 		@{
-			if(total>0) {
-				
-					decimal itog = 0;
-					foreach(int key in basket.Keys)
+			if (totalCount > 0) 
+			{
+				foreach (int key in basket.Keys)
+				{
+					if (key > 0)
 					{
-						if (key > 0)
-						{
-							var good_info = UltimaWebService.GetProductInfo(key);
-							var price = UltimaWebService.GetProductPrice(key);
-							itog += price;
-							<li>
-								@using (Html.BeginForm())
-								{
-									<input type="hidden" name="DeleteItem" value="@key"/>
-									<input type="submit" class="remove" value="Удалить" />
-								}
-								<a href="/good/@key">@good_info.Name</a>
-								<span class="price">&euro; @price</span>
-								<span class="count">x @basket[key]</span>
-							</li>
-						}
+						var good_info = UltimaWebService.GetProductInfo(key);
+						var price = UltimaWebService.GetProductPrice(key);
+						<li>
+							@using (Html.BeginForm())
+							{
+								<input type="hidden" name="DeleteItem" value="@key"/>
+								<input type="submit" class="remove" value="Delete" />
+							}
+							<a href="/good/@key">@good_info.Name</a>
+							<span class="price">&euro; @price</span>
+							<span class="count">x @basket[key]</span>
+						</li>
 					}
-					<li class="last">
-						<span class="price">&euro; @itog</span>
-						<a href="/basket">View MyCart</a>
-						<div class="clear"></div>
-					</li>
-							
-			}else {
+				}
 				<li class="last">
-					Empty cart
+					<span class="price">&euro; @totalAmount</span>
+					<a href="/basket">View MyCart</a>
+					<div class="clear"></div>
+				</li>
+							
+			}
+			else
+			{
+				<li class="last">
+					Cart is empty
 				</li>
 			}	
 		}	

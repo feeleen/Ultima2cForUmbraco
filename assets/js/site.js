@@ -57,7 +57,7 @@ $(function() {
 		
 	});
 	
-	$(".product-photos a[rel^='prettyPhoto']").prettyPhoto();
+	$(".product-photos a[rel^='prettyPhoto']").prettyPhoto;
 	
 	$('.input-group span.plus').click(function(){
 		var count = parseInt($(this).parents('.input-group').find('input[name="NewQuantity"]').val());
@@ -154,11 +154,12 @@ $(function() {
 		window.location = window.location.pathname;
 	})
 	
+	/*
 	var params = {
 		changedEl: ".sort_panel select",
 		visRows: 5,
 		scrollArrows: true
 	}
 	cuSel(params);
-	
+	*/
 });

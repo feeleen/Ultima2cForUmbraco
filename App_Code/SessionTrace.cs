@@ -9,6 +9,7 @@ using System.Web;
 public class SessionTrace
 {
 	public const string Key = "SessionTrace";
+	public const string SettingsKey = "Ultima.ShowTrace";
 	private object lockObj = new object();
 	private List<string> TraceList { set; get; }
 	public IReadOnlyCollection<string> List
@@ -18,13 +19,24 @@ public class SessionTrace
 		}
 	}
 
+	public static bool Allowed
+	{
+		get
+		{
+			return Convert.ToBoolean(System.Web.Configuration.WebConfigurationManager.AppSettings[SessionTrace.SettingsKey]);
+		}
+	}
+
 	public static void Add(string error)
 	{
-		SessionTrace err = Current;
-		lock (err.lockObj)
+		if (Allowed)
 		{
-			err.TraceList.Add(error);
-			err.Update();
+			SessionTrace err = Current;
+			lock (err.lockObj)
+			{
+				err.TraceList.Add(error);
+				err.Update();
+			}
 		}
 	}
 

@@ -1,0 +1,35 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
+@{	
+	CClientInfo info = SessionClient.GetClientInfo();
+	bool loggedIn = HttpContext.Current.User.Identity.IsAuthenticated && info != null;
+	string menuCaption = "Login";
+	if (loggedIn)
+	{
+		menuCaption = info.FirstName;
+		
+		var attributes = new Dictionary<string, object>();
+		attributes.Add("id", "logoutFromMenu");
+		attributes.Add("action", "");
+		using (Html.BeginForm(null, null, FormMethod.Post, attributes))
+		{
+			<input type="hidden" name="submitLogout"/>
+		}
+	}
+}	
+	<a href="/Cabinet" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">@menuCaption <span class="glyphicon glyphicon-menu-down"></span></a>
+
+	<ul class="dropdown-menu" >
+	@if (loggedIn)
+	{
+		<nobr><li class="sub"><a href="/Cabinet">My Account</a></li></nobr>
+		<nobr><li class="sub"><a href="#" onclick="document.getElementById('logoutFromMenu').submit()">Logout</a></li></nobr>
+	}
+	else
+	{
+		<nobr><li class="sub"><a href="/Login">Login</a></li></nobr>
+		<nobr><li class="sub"><a href="/Registration">Registration</a></li></nobr>
+	}	
+	</ul>
+
+

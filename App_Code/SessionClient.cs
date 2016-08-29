@@ -18,9 +18,9 @@ public class SessionClient
 
 	public static bool SignIn(string user, string password)
 	{
-		bool isSigned = UltimaWebService.SignInAgent(user, password);
+		bool isSignedIn = UltimaWebService.SignInAgent(user, password);
 		
-		if (isSigned)
+		if (isSignedIn)
 		{
 			CClientInfo info = SessionClient.GetClientInfo(true);
 
@@ -45,34 +45,47 @@ public class SessionClient
 				HttpContext.Current.Response.Cookies.Add(cookie);
 				return true;
 			}
+			else
+			{
+				SessionTrace.Add("ClientInfo is null");
+			}
 		}
 		else
 		{
-			SignOut();
+			SessionTrace.Add("Not signed in - signing out..");
 		}
 
+		SignOut();
+		
 		return false;
 	}
 
-	public static CClientInfo GetClientInfo(bool askWebService)
+	public static CClientInfo GetClientInfo(bool forceRenew)
 	{
-		CClientInfo clientInfo = (CClientInfo)HttpContext.Current.Session["ClientInfo"];
-		if (clientInfo == null)
+		CClientInfo clientInfo = null;
+
+		if (forceRenew)
 		{
-			if (askWebService)
+			try
 			{
-				try
-				{
-					clientInfo = UltimaWebService.GetClientInfo();
-					SetClientInfo(clientInfo);
-					return clientInfo;
-				}
-				catch (Exception ex)
-				{
-					SessionErrors.Add(ex.Message);
-					SignOut();
-				}
+				clientInfo = UltimaWebService.GetClientInfo();
 			}
+			catch (Exception ex)
+			{
+				SessionErrors.Add(ex.Message);
+				SignOut();
+			}
+
+			SetClientInfo(clientInfo);
+		}
+		else
+		{
+			clientInfo = (CClientInfo)HttpContext.Current.Session["ClientInfo"];
+		}
+
+		if (clientInfo == null && HttpContext.Current.User.Identity.IsAuthenticated)
+		{
+			SignOut();
 		}
 
 		return clientInfo;
@@ -85,7 +98,7 @@ public class SessionClient
 
 	public static void Clear()
 	{
-		HttpContext.Current.Session["ClientInfo"] = null;
+		SetClientInfo(null);
 	}
 
 	public static void SignOut()

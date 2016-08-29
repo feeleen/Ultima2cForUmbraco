@@ -2,11 +2,13 @@
 @{
     Layout = "Master.cshtml";
 }
+@{Html.RenderPartial("Heading");}
 
 @{
 	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
 	
 	bool reserveCreated = false;
+	CClientInfo cinfo = SessionClient.GetClientInfo();
 	
 	if (IsPost)
 	{
@@ -26,7 +28,7 @@
 					SessionBasket.UpdateBasketQuantity(updGoodId, newQty, basket[-updGoodId]);
 				}
 			}
-			if (HttpContext.Current.Request["CrateReserve"]!= null)
+			if (HttpContext.Current.Request["CreateReserve"]!= null)
 			{
 				try
 				{
@@ -97,9 +99,10 @@
 	{
 		decimal total = 0;
 		decimal count = 0;
+		decimal deliveryCost = 0;
+		
 		<div class="row cart">
 		  <div class="col-md-9">
-			<h1>MYCART</h1>
 			
 			<table  class="table-hover" width="100%">
 				<thead>
@@ -155,15 +158,18 @@
 		  <div class="col-md-3">
 		  <div class="order-form">
 			<h2>ORDER SUMMARY</h2>
-				<div class="summary">
+			  	@{
+					var grandTotal = total + deliveryCost;
+				}
+			  	<div class="summary">
 					<span class="count"><em>@count items</em> <i>&euro;  @total.ToString("### ### ##0")</i></span>
-					<span class="delivery"><em>Delivery</em> <i>€ 1401</i></span>
-					<span class="total"><em>TOTAL</em> <i>&euro;  @total.ToString("### ### ##0")</i></span>
-					<span class="update">Update cart</span>
+					<span class="delivery"><em>Delivery</em> <i>&euro; @deliveryCost</i></span>
+						<span class="total"><em>TOTAL</em> <i>&euro; @grandTotal.ToString("### ### ##0")</i></span>
+					<span class="update"></span>
 				</div>
 				@using (Html.BeginForm())
 				{
-					<input type="hidden" name="CrateReserve" value="true"/>
+					<input type="hidden" name="CreateReserve" value="true"/>
 					<div class="form-group">
 						 <label>Name:</label>
 						  <input required type="text" name="Name" class="form-control" placeholder="Name" aria-describedby="basic-addon1">

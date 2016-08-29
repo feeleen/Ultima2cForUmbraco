@@ -22,9 +22,7 @@ namespace Ultima
 		public const string GoodPhotoNodeIDKey = "Ultima.GoodPhotoNodeID";
 		public const string CategoryNodeIDKey = "Ultima.CategoryNodeID";
 		public const string UltimaWebServiceURL = "Ultima.WebServiceURL";
-		public const string ShowTraceKey = "Ultima.ShowTrace";
-		public const string ShowErrorsKey = "Ultima.ShowErrors";
-
+		
 		public static void PublishContentNodes()
 		{
 			IContentService cs = Umbraco.Core.ApplicationContext.Current.Services.ContentService;
@@ -104,8 +102,8 @@ namespace Ultima
 			webConfig.AppSettings.Settings.Remove(InstallHelpers.GoodPhotoNodeIDKey);
 			webConfig.AppSettings.Settings.Remove(InstallHelpers.CategoryNodeIDKey);
 			webConfig.AppSettings.Settings.Remove(InstallHelpers.UltimaWebServiceURL);
-			webConfig.AppSettings.Settings.Remove(InstallHelpers.ShowTraceKey);
-			webConfig.AppSettings.Settings.Remove(InstallHelpers.ShowErrorsKey);
+			webConfig.AppSettings.Settings.Remove(SessionErrors.SettingsKey);
+			webConfig.AppSettings.Settings.Remove(SessionErrors.SettingsKey);
 			webConfig.Save();
 		}
 
@@ -139,8 +137,8 @@ namespace Ultima
 
 			webConfig.AppSettings.Settings.Add(InstallHelpers.AppSettingKey, true.ToString());
 			webConfig.AppSettings.Settings.Add(InstallHelpers.UltimaWebServiceURL, "localhost:8080");
-			webConfig.AppSettings.Settings.Add(InstallHelpers.ShowErrorsKey, false.ToString());
-			webConfig.AppSettings.Settings.Add(InstallHelpers.ShowTraceKey, false.ToString());
+			webConfig.AppSettings.Settings.Add(SessionErrors.SettingsKey, false.ToString());
+			webConfig.AppSettings.Settings.Add(SessionTrace.SettingsKey, false.ToString());
 			webConfig.Save();
 		}
 

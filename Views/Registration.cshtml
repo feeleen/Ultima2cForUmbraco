@@ -1,0 +1,130 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+	Layout = "Master.cshtml";
+}
+@{Html.RenderPartial("Heading");}
+@{
+	if (IsPost)
+	{
+		try
+		{
+			if (Request.Form["submitRegistration"]!= null)
+			{
+				string pwd = Request["password"];
+				string pwdrepeat = Request["passwordrepeat"];
+				
+				if (pwd != pwdrepeat)
+				{
+					<p>password doesn't match</p>
+				}
+				string phone = Request["phone"];
+				string email = Request["email"];
+				string firstname = Request["firstname"];
+				string lastname = Request["lastname"];
+				string address = Request["address"];
+				
+				long id = UltimaWebService.CreateAgent( email,  firstname,  phone,  pwd, address, lastname);
+				
+				if (id > 0)
+				{
+					SessionClient.SignIn(email, pwd);
+					Response.Redirect("/Registration");
+				}
+				else
+				{
+					SessionTrace.Add("id <= 0");
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			SessionErrors.Add(ex.Message);
+		}
+	}
+	
+CClientInfo info = SessionClient.GetClientInfo();
+if (HttpContext.Current.User.Identity.IsAuthenticated && info != null)
+{
+	<p>Congratulations, <b>@info.FirstName</b>, you are registered now!</p>
+	<p>You can <a href="/">Continue shopping</a> or go to your <a href="/Basket">Cart</a></p>
+}
+else
+{
+	var attributes = new Dictionary<string, object>();
+	attributes.Add("class", "form-horizontal");
+	attributes.Add("id", "registerForm");
+	attributes.Add("action", "");
+
+	using (Html.BeginForm(null, null, FormMethod.Post, attributes))
+	{
+
+<fieldset>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="firstname">First Name</label>  
+  <div class="col-md-4">
+  <input id="firstname" name="firstname" type="text" placeholder="" class="form-control input-md" required="">
+    
+  </div>
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="lastname">Last Name</label>  
+  <div class="col-md-4">
+  <input id="lastname" name="lastname" type="text" placeholder="" class="form-control input-md" required="">
+    
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="phone">Phone</label>  
+  <div class="col-md-4">
+  <input id="phone" name="phone" type="text" placeholder="" class="form-control input-md">
+    
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="address">Address</label>
+  <div class="col-md-4">                     
+    <textarea class="form-control" id="address" name="address"></textarea>
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="email">Email</label>  
+  <div class="col-md-4">
+  <input id="email" name="email" type="text" placeholder="" class="form-control input-md" required="">
+    
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="password">Password</label>
+  <div class="col-md-4">
+    <input id="password" name="password" type="password" placeholder="" class="form-control input-md" required="">
+    
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="passwordrepeat">Repeat Password</label>
+  <div class="col-md-4">
+    <input id="passwordrepeat" name="passwordrepeat" type="password" placeholder="" class="form-control input-md" required="">
+    
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="submit"></label>
+  <div class="col-md-4">
+    <button id="submit" name="submitRegistration" class="btn btn-info">Register Me!</button>
+  </div>
+</div>
+
+</fieldset>
+
+	}
+}
+}

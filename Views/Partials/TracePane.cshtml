@@ -1,15 +1,18 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
 
 @{
-	SessionTrace trc = SessionTrace.Current;
-	if (trc!= null && Convert.ToBoolean(System.Web.Configuration.WebConfigurationManager.AppSettings[Ultima.InstallHelpers.ShowTraceKey]))
+	if (SessionTrace.Allowed)
 	{
-		<div>
-		@foreach(string e in trc.List)
+		SessionTrace trc = SessionTrace.Current;
+		if (trc!= null)
 		{
-			<p style="color:blue">@e</p>
+			<div>
+			@foreach(string e in trc.List)
+			{
+				<p style="color:blue">@e</p>
+			}
+			</div>
 		}
-		</div>
+		SessionTrace.Reset();
 	}
-	SessionTrace.Reset();
 }

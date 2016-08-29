@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 
 
@@ -150,4 +151,65 @@ public class CClientInfo
 	public string LastName { get; set; }
 	public string MiddleName { get; set; }
 	public string Phone { get; set; }
+}
+
+public class BoolValue
+{
+	public bool Exists { get; set; }
+	public bool Exist { get; set; }
+	public bool Success { get; set; }
+	public bool Result { get; set; }
+
+	public bool Value
+	{
+		get
+		{
+			IEnumerable<PropertyInfo> properties = typeof(BoolValue).GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.Name != "Value");
+			foreach (PropertyInfo property in properties)
+			{
+				if (Convert.ToBoolean(property.GetValue(this)))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+	}
+}
+
+public class IdValue
+{
+	public int Id { get; set; }
+}
+
+public class CDocument
+{
+	public int Amount { get; set; }
+	public int ChargedBonusAmount { get; set; }
+	public DateTime CreationDate { get; set; }
+	public DateTime DeadDate { get; set; }
+	public int Id { get; set; }
+	public string ObtainMethod { get; set; }
+	public int PriceCategoryId { get; set; }
+	public int ReserveOfficeId { get; set; }
+	public int ReserveStoreId { get; set; }
+	public int SubTypeId { get; set; }
+	public DateTime TransactionDate { get; set; }
+	public int UsedBonusAmount { get; set; }
+	public int Version { get; set; }
+}
+
+public class CDocuments
+{
+	public int AmountMax { get; set; }
+	public int AmountMin { get; set; }
+	public DateTime CreationDateMax { get; set; }
+	public DateTime CreationDateMin { get; set; }
+	public DateTime DeadDateMax { get; set; }
+	public DateTime DeadDateMin { get; set; }
+	public List<CDocument> Documents { get; set; }
+	public int TotalRecords { get; set; }
+	public DateTime TransactionDateMax { get; set; }
+	public DateTime TransactionDateMin { get; set; }
 }

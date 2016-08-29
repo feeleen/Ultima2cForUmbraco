@@ -3,5 +3,5 @@
     Layout = "Master.cshtml";
 }
 
-<h1>@CurrentPage.Title</h1>
+@{Html.RenderPartial("Heading");}
 <div>@CurrentPage.Body</div>

@@ -21,17 +21,9 @@ public class UltimaMembershipHttpModule : IHttpModule
 			// Create the IIdentity instance
 			IIdentity id = new FormsIdentity(authTicket);
 
-			CClientInfo clientInfo = new CClientInfo();
-
-			try
-			{
-				clientInfo = UltimaWebService.GetClientInfo();
-			}
-			catch
-			{
-				FormsAuthentication.SignOut();
-				HttpContext.Current.Response.Redirect("/");
-			}
+			CClientInfo clientInfo = SessionClient.GetClientInfo(true);
+			//if (clientInfo == null)
+			//	clientInfo = SessionClient.GetClientInfo(true);
 
 			// Create the IPrinciple instance
 			IPrincipal principal = new UltimaPrincipal(id, clientInfo);
@@ -50,6 +42,4 @@ public class UltimaMembershipHttpModule : IHttpModule
 	{
 		application.PostAuthenticateRequest += new EventHandler(this.Application_PostAuthenticateRequest);
 	}
-
-	
 }

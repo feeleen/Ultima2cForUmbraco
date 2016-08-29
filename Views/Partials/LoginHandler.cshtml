@@ -1,0 +1,26 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+	if (IsPost)
+	{
+		if (Request.Form["submitLogin"] != null)
+		{
+			string email = Request.Form["email"].Trim();
+			string pwd = Request.Form["pwd"].Trim();
+			
+			if (SessionClient.SignIn(email, pwd))
+			{
+				Response.Redirect("/");
+			}
+			else
+			{
+				SessionErrors.Add("Failed to sign in user " + email);
+			}
+			
+		}
+		else if (Request.Form["submitLogout"] != null)
+		{
+			SessionClient.SignOut();
+			Response.Redirect("/");
+		}
+	}
+}
