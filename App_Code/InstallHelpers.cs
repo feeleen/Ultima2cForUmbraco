@@ -103,7 +103,7 @@ namespace Ultima
 			webConfig.AppSettings.Settings.Remove(InstallHelpers.CategoryNodeIDKey);
 			webConfig.AppSettings.Settings.Remove(InstallHelpers.UltimaWebServiceURL);
 			webConfig.AppSettings.Settings.Remove(SessionErrors.SettingsKey);
-			webConfig.AppSettings.Settings.Remove(SessionErrors.SettingsKey);
+			webConfig.AppSettings.Settings.Remove(SessionTrace.SettingsKey);
 			webConfig.Save();
 		}
 
