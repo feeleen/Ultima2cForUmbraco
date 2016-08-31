@@ -8,7 +8,7 @@
 	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
 	
 	bool reserveCreated = false;
-	CClientInfo cinfo = SessionClient.GetClientInfo();
+	CClientInfo info = SessionClient.GetClientInfo();
 	
 	if (IsPost)
 	{
@@ -32,30 +32,38 @@
 			{
 				try
 				{
-					string email = HttpContext.Current.Request["Email"];
-					string name = HttpContext.Current.Request["Name"];
-					string phone = HttpContext.Current.Request["Phone"];
-					string password = "empty"; //HttpContext.Current.Request["Password"];
-					string address = HttpContext.Current.Request["Address"];
-
 					long agentId = -1;
-					bool isClientEmailExists = UltimaWebService.IsClientExists(email);
-
-					if (!isClientEmailExists)
+					string address = HttpContext.Current.Request["Address"];
+					
+					if (info == null)
 					{
-						agentId= UltimaWebService.CreateAgent( email, name, phone, password, address);
-						if (agentId <= 0)
+						string email = HttpContext.Current.Request["Email"];
+						string name = HttpContext.Current.Request["Name"];
+						string phone = HttpContext.Current.Request["Phone"];
+						string password = "empty"; //HttpContext.Current.Request["Password"];
+						
+						bool isClientEmailExists = UltimaWebService.IsClientExists(email);
+
+						if (!isClientEmailExists)
 						{
-							@Html.Raw("Unable to create Agent " + email);
+							agentId= UltimaWebService.CreateAgent( email, name, phone, password, address);
+							if (agentId <= 0)
+							{
+								@Html.Raw("Unable to create Agent " + email);
+							}
+						}
+
+						bool signed = UltimaWebService.SignInAgent( email, password);
+						if (!signed)
+						{
+							@Html.Raw("Unable to sign in Agent " + email);
 						}
 					}
-
-					bool signed = UltimaWebService.SignInAgent( email, password);
-					if (!signed)
+					else
 					{
-						@Html.Raw("Unable to sign in Agent " + email);
+						agentId = info.Id;
 					}
-
+					
 					COrder order = UltimaWebService.CreateReserve(agentId, address);
 
 					if (order!= null && order.Id > 0)
@@ -68,8 +76,8 @@
 							  <div class="modal-body">
 								<h1>Thank you for your order!</h1>
 
-								<p>Number of your order @order.Id</p>
-								<p>You can pick up your order @order.DeadDate.ToString()</p><br/>
+								<p>Your order # @order.Id </p>
+								<p>You can pick up your order till @order.DeadDate.ToString()</p><br/>
 							  </div>
 							 
 							</div>
@@ -94,6 +102,8 @@
 			@Html.Raw("Server Error (" + ex.GetHttpCode() + "): " + ex.Message);
 		}
 	}
+	
+	info = SessionClient.GetClientInfo();
 	
 	if (!reserveCreated)
 	{
@@ -167,39 +177,55 @@
 						<span class="total"><em>TOTAL</em> <i>&euro; @grandTotal.ToString("### ### ##0")</i></span>
 					<span class="update"></span>
 				</div>
-				@using (Html.BeginForm())
+				
+				
+				@if (total > 0)
 				{
-					<input type="hidden" name="CreateReserve" value="true"/>
-					<div class="form-group">
-						 <label>Name:</label>
-						  <input required type="text" name="Name" class="form-control" placeholder="Name" aria-describedby="basic-addon1">
-					</div>
+					using (Html.BeginForm())
+					{
+						<input type="hidden" name="CreateReserve" value="true"/>
 
-					<div class="form-group">
-						 <label>Phone:</label>
-						  <input required type="tel" name="Phone" class="form-control" placeholder="Phone" aria-describedby="basic-addon2">
-					</div>
-					<div class="form-group">
-						 <label>Address:</label>
-						  <input required type="text" name="Address" class="form-control" placeholder="Address" aria-describedby="basic-addon3">
-					</div>
+						if (info == null)
+						{
+							<div class="form-group">
+								 <label>Name:</label>
+								  <input required type="text" name="Name" class="form-control" placeholder="Name" aria-describedby="basic-addon1">
+							</div>
 
-					<div class="form-group">
-						 <label>Email:</label>
-						  <input required type="email" name="Email" class="form-control" placeholder="Your Email" aria-describedby="basic-addon4">
-					</div>
-					<!--div class="row">
-						<div class="input-group col-md-4">
-						  <span class="input-group-addon" id="basic-addon5">Password:</span>
-						  <input type="password" name="Password" class="form-control" aria-describedby="basic-addon5">
+							<div class="form-group">
+								 <label>Phone:</label>
+								  <input required type="tel" name="Phone" class="form-control" placeholder="Phone" aria-describedby="basic-addon2">
+							</div>
+							<div class="form-group">
+								 <label>Email:</label>
+								  <input required type="email" name="Email" class="form-control" placeholder="Your Email" aria-describedby="basic-addon4">
+							</div>
+						}
+						else
+						{
+							<div class="form-group">
+								 <label>@info.FirstName, specify order details:</label>
+							</div>
+						}
+						<div class="form-group">
+							 <label>Address:</label>
+							  <input required type="text" name="Address" class="form-control" placeholder="Address" aria-describedby="basic-addon3">
 						</div>
-					</div>
-					<br-->
 
-					
+						<!--div class="row">
+							<div class="input-group col-md-4">
+							  <span class="input-group-addon" id="basic-addon5">Password:</span>
+							  <input type="password" name="Password" class="form-control" aria-describedby="basic-addon5">
+							</div>
+						</div>
+						<br-->
+					}
 				}
 			</div>
-			<input type="submit" class="place-order" value="PLACE ORDER" />
+			@if (total > 0)
+			{
+				<input type="submit" class="place-order" value="PLACE ORDER" />
+			}
 		  </div>
 		</div>
 		
