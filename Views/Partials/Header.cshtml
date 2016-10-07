@@ -16,14 +16,22 @@
 			if (CurrentPage.Name == "Good")
 			{
 				CProductInfo good = (CProductInfo)ViewData["good"];
-				title += " - " + ViewData["GoodID"].ToString(); // for debug
+				//title += " - " + ViewData["GoodID"].ToString(); // for debug
 				title = good.Name + " - " + CurrentPage.Title;
 			}
 			else if (CurrentPage.Name == "Goods")
 			{
 				CCategory cat = (CCategory)ViewData["category"];
-				title += " - " + ViewData["CategoryID"].ToString(); // for debug
-				title = cat.Category + "-" + CurrentPage.Title;
+				//title += " - " + ViewData["CategoryID"].ToString(); // for debug
+				if (cat.CategoryId < 0)
+				{
+					title = CurrentPage.Title;
+				}
+				else
+				{
+					title = cat.Category + " - " + CurrentPage.Title;
+				}
+				
 			}
 		}
 		catch{}

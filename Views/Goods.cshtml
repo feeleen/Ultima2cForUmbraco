@@ -12,12 +12,6 @@
 	}
 }
 
-
-@{ Html.RenderPartial("BreadCrumbs"); }
-
-
-
-
 @{
 
 	System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
@@ -31,16 +25,9 @@
 	string sortOrd = words[1];
 	
 	int pageSize = Request.QueryString["pageSize"] == null? 24 : Convert.ToInt32(Request.QueryString["pageSize"]);
-	
-	
-	
 	int pageNo = Request.QueryString["pageNo"] == null? 1 : Convert.ToInt32(Request.QueryString["pageNo"]);
-	//int pageSize = Request.QueryString["pageSize"] == null? 24 : Convert.ToInt32(Request.QueryString["pageSize"]);
 	string display = Request.QueryString["display"] == null? "grid" : Request.QueryString["display"];
 	int? categoryId = (int)ViewData["CategoryID"];
-	
-	//string sortFld = SortField.Price;
-	//string sortOrd = SortOrder.Asc;
 	
 	string avail = Availability.Outofstock;
 	string searchQuery = String.Empty;
@@ -85,62 +72,70 @@
 		catalog = UltimaWebService.GetCatalog(1, categoryId, sortFld, sortOrd, pageSize, pageNo,
 			searchQuery, brandId, brandNames, priceFrom, priceTo, avail, filter);
 	}
-	catch {}
-	
-	
+	catch 
+	{}
 }
 
+@if (categoryId < 0)
+{
+	Html.RenderPartial("Heading");
+	
+	<ul>
+		@try
+		{
+			List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
+			foreach (CCategory cat in rootCats)
+			{
+				<li ><a href="/Goods/@cat.CategoryId">@cat.Category</a></li>
+			}
+			if (!rootCats.Any())
+			{
+				<li >No categories</li>
+			}
+		}
+		catch
+		{}
+	</ul>
+}
+else
+{
+	Html.RenderPartial("BreadCrumbs");
 
-<div class="row">
-  
-  <div class="col-md-3">
-	@{ Html.RenderPartial("CatalogFilter", new ViewDataDictionary { { "catalog", catalog } }); }
-  </div>
-  <div class="col-md-9">
-	<div class="sort_block"><h1>@currentCategory</h1> 
-	<div class="sort_panel">
-		<form method="get" id="sortsiz">
-		Sort by: <select name="sorting" onChange="$('#sortsiz').submit();">
-		<option @{if(sort=="price_asc") {<text>selected</text>} } value="price_asc" rel="ask">Price Low to High </option>
-		<option @{if(sort=="price_desc") {<text>selected</text>} } value="price_desc" rel="desk">Price High to Low </option>
-		<option @{if(sort=="name_asc") {<text>selected</text>} } value="name_asc" rel="ask">Name Low to High </option>
-		<option @{if(sort=="name_desc") {<text>selected</text>} } value="name_desc" rel="desk">Name High to Low </option>
-		</select>
-		Show:<select name="pageSize" onChange="$('#sortsiz').submit();">
-		<option @{if(pageSize==12) {<text>selected</text>} } value="12">12</option>
-		<option @{if(pageSize==24) {<text>selected</text>} } value="24">24</option>
-		<option @{if(pageSize==48) {<text>selected</text>} } value="48">48</option>
-		</select>
-		<div class="view-disp">
-			<a href="?display=list" class="display-list"></a>
-			<a href="?display=grid" class="display-table"></a>
+	<div class="row">
+
+		<div class="col-md-3">
+			@{ Html.RenderPartial("CatalogFilter", new ViewDataDictionary { { "catalog", catalog } }); }
 		</div>
-		</form>
+		<div class="col-md-9">
+		<div class="sort_block"><h1>@currentCategory</h1> 
+		<div class="sort_panel">
+			<form method="get" id="sortsiz">
+			Sort by: <select name="sorting" onChange="$('#sortsiz').submit();">
+			<option @{if(sort=="price_asc") {<text>selected</text>} } value="price_asc" rel="ask">Price Low to High </option>
+			<option @{if(sort=="price_desc") {<text>selected</text>} } value="price_desc" rel="desk">Price High to Low </option>
+			<option @{if(sort=="name_asc") {<text>selected</text>} } value="name_asc" rel="ask">Name Low to High </option>
+			<option @{if(sort=="name_desc") {<text>selected</text>} } value="name_desc" rel="desk">Name High to Low </option>
+			</select>
+			Show:<select name="pageSize" onChange="$('#sortsiz').submit();">
+			<option @{if(pageSize==12) {<text>selected</text>} } value="12">12</option>
+			<option @{if(pageSize==24) {<text>selected</text>} } value="24">24</option>
+			<option @{if(pageSize==48) {<text>selected</text>} } value="48">48</option>
+			</select>
+			<div class="view-disp">
+				<a href="?display=list" class="display-list"></a>
+				<a href="?display=grid" class="display-table"></a>
+			</div>
+			</form>
+		</div>
+		</div>
+		@{
+			if(display=="grid") { 
+				Html.RenderPartial("GoodGrid", new ViewDataDictionary { { "catalog", catalog } }); 
+			}
+			else { 
+				Html.RenderPartial("GoodList", new ViewDataDictionary { { "catalog", catalog } }); 
+			}
+		 }
+	  </div>
 	</div>
-	</div>
-	@{
-		if(display=="grid") { 
-			Html.RenderPartial("GoodGrid", new ViewDataDictionary { { "catalog", catalog } }); 
-		}
-		else { 
-			Html.RenderPartial("GoodList", new ViewDataDictionary { { "catalog", catalog } }); 
-		}
-	 }
-  </div>
-</div>	
-
-
-	
-	
-
-
-
-
-	
-
-
-
-
-
-
-
+}
