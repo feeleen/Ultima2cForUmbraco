@@ -9,6 +9,16 @@
 
 		using (Html.BeginForm(null, null, FormMethod.Get, attributes))
 		{
+			// here we keep sort and layout parameters
+			List<string> pars = new List<string> {"sorting", "pageSize", "display"};
+			foreach(string par in pars)
+			{
+				if (HttpContext.Current.Request.QueryString[par]!= null)
+				{
+					<input type="hidden" name="@par" value="@HttpContext.Current.Request.QueryString[par]"/>
+				}
+			}
+
 		<div class="form-horizontal filters">
 			<fieldset class="form-group">
 				<legend class="categories">Categories</legend><ul>

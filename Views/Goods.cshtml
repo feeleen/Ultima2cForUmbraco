@@ -103,13 +103,25 @@ else
 
 	<div class="row">
 
-		<div class="col-md-3">
-			@{ Html.RenderPartial("CatalogFilter", new ViewDataDictionary { { "catalog", catalog } }); }
-		</div>
-		<div class="col-md-9">
+	  <div class="col-md-3">
+		@{ Html.RenderPartial("CatalogFilter", new ViewDataDictionary { { "catalog", catalog } }); }
+	  </div>
+	  <div class="col-md-9">
 		<div class="sort_block"><h1>@currentCategory</h1> 
 		<div class="sort_panel">
 			<form method="get" id="sortsiz">
+				@{
+					// here we keep all the parameters
+					var coll = HttpUtility.ParseQueryString(HttpContext.Current.Request.QueryString.ToString());
+					foreach (string key in coll)
+					{
+						List<string> use = new List<string> {"sorting", "pageSize"};
+						if (!use.Contains(key))
+						{
+							<input type="hidden" name="@key" value="@coll[key]"/>
+						}
+					}
+				}
 			Sort by: <select name="sorting" onChange="$('#sortsiz').submit();">
 			<option @{if(sort=="price_asc") {<text>selected</text>} } value="price_asc" rel="ask">Price Low to High </option>
 			<option @{if(sort=="price_desc") {<text>selected</text>} } value="price_desc" rel="desk">Price High to Low </option>
@@ -122,8 +134,8 @@ else
 			<option @{if(pageSize==48) {<text>selected</text>} } value="48">48</option>
 			</select>
 			<div class="view-disp">
-				<a href="?display=list" class="display-list"></a>
-				<a href="?display=grid" class="display-table"></a>
+				<a href="?@Helper.GetQueryString("display","list")" class="display-list"></a>
+				<a href="?@Helper.GetQueryString("display","grid")" class="display-table"></a>
 			</div>
 			</form>
 		</div>

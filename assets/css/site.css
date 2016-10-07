@@ -662,7 +662,7 @@ ul.products-inner .item:hover a {
 }
 
 .products h2 {
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 	font-size:22px;
 	color:#717171;
 	width:98%;
@@ -679,7 +679,7 @@ ul.products-inner .item:hover a {
 
 
 .sort_block h1{
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 	font-size:22px;
 	color:#fff;
 	text-transform:uppercase;
@@ -689,7 +689,7 @@ ul.products-inner .item:hover a {
 }
 
 .filters .categories {
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 	font-size:22px;
 	color:#fff;
 	text-transform:uppercase;
@@ -939,7 +939,7 @@ ul.products-inner .item:hover a {
 .specification h2 {
 	color:#717171;
 	font-size:22px;
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 	text-transform:uppercase;
 	border-bottom:1px solid #32b8dc;
 	margin:0 10px;
@@ -949,7 +949,7 @@ ul.products-inner .item:hover a {
 .overview h2 {
 	color:#717171;
 	font-size:22px;
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 	text-transform:uppercase;
 	margin:0 10px;
 	padding:20px 0
@@ -1249,21 +1249,21 @@ span.update {
 	font-size:60px;
 	margin:30px 0;
 	text-align:left;
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 }
 
 .carousel-caption .desc {
 	font-size:15px;
 	margin:20px 0 0 0;
 	text-align:left;
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 }
 
 .carousel-caption .price {
 	font-size:75px;
 	margin:20px 0 0 0;
 	text-align:left;
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 	position:relative;
 	display:inline-block;
 }
@@ -1274,7 +1274,7 @@ span.update {
 	position:absolute;
 	top:40px;
 	right:-40px;
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 }
 
 .price-min {
