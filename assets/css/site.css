@@ -986,7 +986,7 @@ ul.products-inner .item:hover a {
 
 h1, h2, h3 {
 	color:#717171;
-	font-family: 'Conv_BentonSans';
+	font-family: 'Conv_BentonSans', Arial;
 	text-transform:uppercase;
 }
 h1 {
@@ -1223,7 +1223,7 @@ span.update {
 
 .modal.fade.in {
 	background:#cccccc;
-	opacity:1
+	opacity:1;
 }
 
 
