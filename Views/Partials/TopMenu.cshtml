@@ -4,6 +4,16 @@
 	CClientInfo info = SessionClient.GetClientInfo();
 	var selection = CurrentPage.Site().Children.Where("AppearInTopMenu");
 }
+@{
+	if (IsPost)
+	{
+		if (HttpContext.Current.Request["DeleteItem"]!= null)
+		{
+			int delGoodId = Convert.ToInt32(HttpContext.Current.Request["DeleteItem"]);
+			SessionBasket.DeleteFromBasket(delGoodId);
+		}
+	}
+}
 
 <ul class="nav navbar-nav">
 

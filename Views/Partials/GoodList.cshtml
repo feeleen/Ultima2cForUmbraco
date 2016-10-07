@@ -1,4 +1,4 @@
-@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
 
 @{ Html.RenderPartial("AddToBasketHandler"); }
 
@@ -61,13 +61,7 @@
 							}
 							if (!propsExists)
 							{
-								<li>9.7 inches</li>
-								<li>Apple iOS 9</li>
-								<li>4G LTE, Wi-Fi</li>
-								<li>Apple</li>
-								<li>A9X chip with 64bit architecture</li>
-								<li>2048 x 1536</li>
-								<li>256 gigabytes</li>
+								<li>Item has no description</li>
 							}
 						}
 						</ul>
@@ -77,10 +71,10 @@
 							<span class="glyphicon glyphicon-ru"></span>&euro; @UltimaWebService.GetProductPrice(goodID)</span>
 						@{
 							if(prod.Availability == "outofstock") {
-								<span class="instok not">Not in Stok</span>
+								<span class="instok not">Not in Stock</span>
 							}
 							else {
-								<span class="instok">In Stok</span>
+								<span class="instok">In Stock</span>
 							}
 						}
 						@using (Html.BeginForm())

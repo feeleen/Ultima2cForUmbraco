@@ -1,0 +1,76 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+	Layout = "Master.cshtml";
+}
+
+@{Html.RenderPartial("Heading");}
+
+@{
+	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
+	
+	bool reserveCreated = false;
+	CClientInfo info = SessionClient.GetClientInfo();
+	
+	if (IsPost)
+	{
+		if (HttpContext.Current.Request["CreateReserve"]!= null)
+		{
+			try
+			{
+				long agentId = -1;
+				string address = HttpContext.Current.Request["Address"];
+
+				if (info == null)
+				{
+					string email = HttpContext.Current.Request["Email"];
+					string name = HttpContext.Current.Request["Name"];
+					string phone = HttpContext.Current.Request["Phone"];
+					string password = "empty"; //HttpContext.Current.Request["Password"];
+
+					bool isClientEmailExists = UltimaWebService.IsClientExists(email);
+
+					if (!isClientEmailExists)
+					{
+						agentId= UltimaWebService.CreateAgent( email, name, phone, password, address);
+						if (agentId <= 0)
+						{
+							@Html.Raw("Unable to create Agent " + email);
+						}
+					}
+
+					bool signed = UltimaWebService.SignInAgent( email, password);
+					if (!signed)
+					{
+						@Html.Raw("Unable to sign in Agent " + email);
+					}
+				}
+				else
+				{
+					agentId = info.Id;
+				}
+
+				COrder order = UltimaWebService.CreateReserve(agentId, address);
+
+				if (order!= null && order.Id > 0)
+				{
+					<h1>Thank you for your order!</h1>
+
+						<p>Your order # @order.Id </p>
+						<p>You can pick up your order till @order.DeadDate.ToString()</p><br/>
+
+
+						reserveCreated = true;
+						SessionBasket.ClearBasket();
+				}
+				else
+				{
+				}
+			}
+			catch(Exception ex)
+			{
+				SessionErrors.Add(ex);
+			}
+		}
+	}
+
+}
