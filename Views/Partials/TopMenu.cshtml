@@ -51,7 +51,7 @@
 		{
 			decimal itemCount = basket[key];
 			totalCount += itemCount;
-			totalAmount += totalCount * itemCount;
+			totalAmount += basket[-key] * itemCount;
 		}
 	}
 	if (totalCount == 0)
