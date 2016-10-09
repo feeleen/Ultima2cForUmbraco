@@ -10,6 +10,10 @@ Umbraco is used as a front-end to show the data taken from Ultimate2c via rest a
 
 ![basket](https://snag.gy/A8KbHy.jpg)
 
+![login](https://snag.gy/3v4GJo.jpg)
+
+![registration](https://snag.gy/YoaUi4.jpg)
+
 
 How to start:
 
