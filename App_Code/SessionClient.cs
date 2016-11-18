@@ -90,6 +90,36 @@ public class SessionClient
 
 		return clientInfo;
 	}
+	
+	public static List<CDeliveryAddress> GetDeliveryAddresses(bool forceRenew)
+	{
+		List<CDeliveryAddress> deliveryAddresses = null;
+
+		if (forceRenew || deliveryAddresses == null)
+		{
+			try
+			{
+				deliveryAddresses = UltimaWebService.GetDeliveryAddresses();
+			}
+			catch (Exception ex)
+			{
+				SessionErrors.Add(ex.Message);
+			}
+
+			SetDeliveryAddresses(deliveryAddresses);
+		}
+		else
+		{
+			deliveryAddresses = (List<CDeliveryAddress>)HttpContext.Current.Session["DeliveryAddresses"];
+		}
+
+		return deliveryAddresses;
+	}
+	
+	public static void SetDeliveryAddresses(List<CDeliveryAddress> deliveryAddresses )
+	{
+		HttpContext.Current.Session["DeliveryAddresses"] = deliveryAddresses;
+	}
 
 	public static void SetClientInfo(CClientInfo clientInfo)
 	{

@@ -1,0 +1,22 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+
+ <div class="table-responsive col-md-4">
+<div class="cabinet_profile">Your Details</div>
+<ul class="cabinet-menu">
+	<li @{if (CurrentPage.Name.ToLower() == "cabinet"){<text>class="selected"</text>}}>
+		<a href="/cabinet/">My orders</a>
+	</li>
+	<li>
+		<a href="/cabinet/history">Orders history</a>
+	</li>
+	<li @{if (CurrentPage.Name.ToLower() == "account"){<text>class="selected"</text>}}>
+		<a href="/cabinet/account">Edit personal details</a>
+	</li>
+	<li @{if (CurrentPage.Name.ToLower() == "changepassword"){<text>class="selected"</text>}}>
+		<a href="/cabinet/changepassword/">Change password</a>
+	</li>
+</ul>
+</div>
+
+}

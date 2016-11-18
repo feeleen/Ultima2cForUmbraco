@@ -34,6 +34,20 @@
 	@{ Html.RenderPartial("FooterScripts");}
 	
 	<div class="overlay"><div class="loader">Order processing...</div></div>
+	
+	@{
+		CClientInfo info = SessionClient.GetClientInfo();
+		bool loggedIn = HttpContext.Current.User.Identity.IsAuthenticated && info != null;
+}
+
+	@if (CurrentPage.Name.ToLower() != "tuneorder" || loggedIn)
+	{
+		<div class="overlayUser">
+			@{Html.RenderPartial("Login");}
+			@{Html.RenderPartial("Registration");}
+			@{Html.RenderPartial("RecoverPass");}
+		</div>
+	}
   </body>
 </html>
 @{ Html.RenderPartial("ErrorsPane"); }

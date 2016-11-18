@@ -297,12 +297,17 @@ public class UltimaWebService
 		return GetObject<CClientInfo>("GetClientInfo", null);
 	}
 
-	public static bool ConfirmClientPasswordChangeRequest(string hash, string password)
+	public static bool ConfirmClientPasswordChangeRequest(string hash, string password, string sessid)
 	{
 		Hashtable res = new Hashtable();
 		res["Hash"] = hash;
 		res["Password"] = password;
-		return GetObject<BoolValue>("ConfirmClientPasswordChangeRequest", null).Value;
+		cookieCont = new CookieContainer();
+	//	cookieCont.Add(new Cookie("ss-id", sessid) { Domain = WebConfigurationManager.AppSettings[InstallHelpers.UltimaWebServiceURL] });
+		cookieCont.Add(new Uri("http://" + WebConfigurationManager.AppSettings[InstallHelpers.UltimaWebServiceURL]),
+    new Cookie("ss-id", sessid));
+		
+		return GetObject<BoolValue>("ConfirmClientPasswordChangeRequest", res).Value;
 	}
 
 	public static bool UpdateClientInfoFromRequestParameters()
@@ -315,6 +320,15 @@ public class UltimaWebService
 			return true;
 		}
 		return false;
+	}
+	
+	public static bool ChangeClientPassword(string oldpwd, string pwd)
+	{
+		
+		Hashtable res = new Hashtable();
+		res["OldPassword"] = oldpwd;
+		res["NewPassword"] = pwd;
+		return GetObject<BoolValue>("ChangeClientPassword", res).Value;
 	}
 
 	private static Hashtable GetParmetersFromRequest(List<string> names)
@@ -336,6 +350,13 @@ public class UltimaWebService
 	{
 		return GetObject<BoolValue>("SignInClientWithEmail", 
 			new Hashtable { { "Email", email }, { "Password", password } })
+			.Value;
+	}
+	
+	public static bool SendClientPasswordChangeRequest(string email)
+	{
+		return GetObject<BoolValue>("SendClientPasswordChangeRequest", 
+			new Hashtable { { "Email", email } })
 			.Value;
 	}
 
@@ -366,8 +387,18 @@ public class UltimaWebService
 
 		return GetObject<IdValue>("CreateClient", pars).Id;
 	}
+	
+	public static long CreateDeliveryAddress(string address, decimal latitude, decimal longitude)
+	{
+		Hashtable pars = new Hashtable();
+		pars["Address"] = address;
+		pars["Latitude"] = latitude;
+		pars["Longitude"] = longitude;
 
-	public static COrder CreateReserve(long agentId, string address)
+		return GetObject<IdValue>("CreateDeliveryAddress", pars).Id;
+	}
+
+	public static COrder CreateReserve(long agentId, long addressId, string comments)
 	{
 		try
 		{
@@ -386,13 +417,16 @@ public class UltimaWebService
 					i++;
 				}
 			} 
+			
+			DeliveryInfo delInfo = new DeliveryInfo(addressId, comments);
 
 			Hashtable pars = new Hashtable();
 			pars["Articles"] = prodInfo;
+			pars["Delivery"] = delInfo;
 			//pars["AgentId"] = agentId; // agentid will be taken from session by the server! do not use this field!
 			pars["ReserveOfficeId"] = 1;
-			pars["ObtainMethod"] = "simplified_shipping"; // ownStorePickup, simplified_shipping - some magic hardcoded values in ultima2c..
-			pars["ShippingAddress"] = address;
+			pars["ObtainMethod"] = "delivery"; // ownStorePickup, simplified_shipping - some magic hardcoded values in ultima2c..
+			//pars["ShippingAddress"] = address;
 
 			COrder order = GetObject<COrder>("CreateReserve", pars);
 				
@@ -404,14 +438,76 @@ public class UltimaWebService
 			throw;
 		}
 	}
+	
+	public static decimal GetDeliveryCost(long addressId)
+	{
+		try
+		{
+			Dictionary<string, string> res = new Dictionary<string, string>();
+
+			var basket = SessionBasket.GetBasket();
+
+			ArticleInfo[] prodInfo = new ArticleInfo[basket.Where(x => x.Key > 0).Count()];
+
+			int i = 0;
+			foreach (var key in basket.Keys)
+			{
+				if (key > 0)
+				{
+					prodInfo[i] = new ArticleInfo(key, basket[key]);
+					i++;
+				}
+			} 
+			
+			DeliveryInfo delInfo = new DeliveryInfo(addressId, string.Empty);
+
+			Hashtable pars = new Hashtable();
+			pars["Articles"] = prodInfo;
+			pars["Delivery"] = delInfo;
+			pars["ReserveOfficeId"] = 1;
+			
+			ValueValue order = GetObject<ValueValue>("GetDeliveryCost", pars);
+				
+			return order.Value;
+		}
+		catch (Exception ex)
+		{
+			SessionErrors.Add(ex);
+			throw ex;
+		}
+	}
 
 
-	public static CDocuments GetDocuments(int pageNumber = 1, int recordsPerPage = 20)
+	public static CDocuments GetDocuments(int pageNumber = 1, int recordsPerPage = 20, DateTime? fromDate = null, DateTime? toDate = null, string[] groups = null)
 	{
 		Hashtable pars = new Hashtable();
 		pars["PageNumber"] = pageNumber;
 		pars["RecordsPerPage"] = recordsPerPage;
+		pars["CreationDateFrom"] = fromDate;
+		pars["CreationDateTo"] = toDate;
+		groups = groups ?? new string[0];
+		pars["Groups"] = groups;
 		return GetObject<CDocuments>("GetReserves", pars);
+	}
+	
+	public static CDocument GetDocument(int docId)
+	{
+		Hashtable pars = new Hashtable();
+		pars["Id"] = docId;
+		return GetObject<CDocument>("GetReserveInfo", pars);
+	}
+	
+	public static List<CReserveArticle> GetDocumentArticles(int docId)
+	{
+		Hashtable pars = new Hashtable();
+		pars["Id"] = docId;
+		return GetObject<List<CReserveArticle>>("GetReserveArticles", pars);
+	}
+
+	public static List<CDeliveryAddress> GetDeliveryAddresses()
+	{
+		Hashtable pars = new Hashtable();
+		return GetObject<List<CDeliveryAddress>>("GetDeliveryAddresses", pars);
 	}
 
 	#region Web Request stuff
@@ -486,7 +582,7 @@ public class UltimaWebService
 		webRequest.Headers.Add("AUTHORIZATION", autorization);
 
 		SessionTrace.Add(paramString);
-
+		webRequest.CookieContainer = cookieCont;
 		try
 		{
 			using (var streamWriter = new StreamWriter(webRequest.GetRequestStream()))

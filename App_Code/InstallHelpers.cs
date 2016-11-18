@@ -19,9 +19,11 @@ namespace Ultima
     {
 		public const string AppSettingKey = "Ultima.StartupInstalled";
 		public const string GoodNodeIDKey = "Ultima.GoodNodeID";
+		public const string CabinetNodeID = "Ultima.CabinetNodeID";
 		public const string GoodPhotoNodeIDKey = "Ultima.GoodPhotoNodeID";
 		public const string CategoryNodeIDKey = "Ultima.CategoryNodeID";
 		public const string UltimaWebServiceURL = "Ultima.WebServiceURL";
+		public const string GoogleMapsKey = "Ultima.GoogleMapsKey";
 		
 		public static void PublishContentNodes()
 		{
@@ -102,6 +104,8 @@ namespace Ultima
 			webConfig.AppSettings.Settings.Remove(InstallHelpers.GoodPhotoNodeIDKey);
 			webConfig.AppSettings.Settings.Remove(InstallHelpers.CategoryNodeIDKey);
 			webConfig.AppSettings.Settings.Remove(InstallHelpers.UltimaWebServiceURL);
+			webConfig.AppSettings.Settings.Remove(InstallHelpers.GoogleMapsKey);
+			webConfig.AppSettings.Settings.Remove(InstallHelpers.CabinetNodeID);
 			webConfig.AppSettings.Settings.Remove(SessionErrors.SettingsKey);
 			webConfig.AppSettings.Settings.Remove(SessionTrace.SettingsKey);
 			webConfig.Save();
@@ -132,6 +136,13 @@ namespace Ultima
 				webConfig.AppSettings.Settings.Add(InstallHelpers.CategoryNodeIDKey, node.Id.ToString());
 			}
 
+			node = cs.GetRootContent().FirstOrDefault().Descendants().Where(x => x.Name == "Cabinet").FirstOrDefault();
+
+			if (node != null)
+			{
+				webConfig.AppSettings.Settings.Add(InstallHelpers.CabinetNodeID, node.Id.ToString());
+			}
+
 			//All done installing our custom stuff
 			//As we only want this to run once - not every startup of Umbraco
 
@@ -139,6 +150,7 @@ namespace Ultima
 			webConfig.AppSettings.Settings.Add(InstallHelpers.UltimaWebServiceURL, "localhost:8080");
 			webConfig.AppSettings.Settings.Add(SessionErrors.SettingsKey, false.ToString());
 			webConfig.AppSettings.Settings.Add(SessionTrace.SettingsKey, false.ToString());
+			webConfig.AppSettings.Settings.Add(InstallHelpers.GoogleMapsKey, "yOuRgOoGlEkEy");
 			webConfig.Save();
 		}
 

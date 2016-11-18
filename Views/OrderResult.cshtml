@@ -7,7 +7,8 @@
 
 @{
 	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
-	
+	CBasketTotal basketTotal = SessionBasket.GetBasketTotal();
+
 	bool reserveCreated = false;
 	CClientInfo info = SessionClient.GetClientInfo();
 	
@@ -18,38 +19,12 @@
 			try
 			{
 				long agentId = -1;
-				string address = HttpContext.Current.Request["Address"];
+				string comments = HttpContext.Current.Request["comments"];
 
-				if (info == null)
-				{
-					string email = HttpContext.Current.Request["Email"];
-					string name = HttpContext.Current.Request["Name"];
-					string phone = HttpContext.Current.Request["Phone"];
-					string password = "empty"; //HttpContext.Current.Request["Password"];
+				
+				agentId = info.Id;
 
-					bool isClientEmailExists = UltimaWebService.IsClientExists(email);
-
-					if (!isClientEmailExists)
-					{
-						agentId= UltimaWebService.CreateAgent( email, name, phone, password, address);
-						if (agentId <= 0)
-						{
-							@Html.Raw("Unable to create Agent " + email);
-						}
-					}
-
-					bool signed = UltimaWebService.SignInAgent( email, password);
-					if (!signed)
-					{
-						@Html.Raw("Unable to sign in Agent " + email);
-					}
-				}
-				else
-				{
-					agentId = info.Id;
-				}
-
-				COrder order = UltimaWebService.CreateReserve(agentId, address);
+				COrder order = UltimaWebService.CreateReserve(agentId, basketTotal.DeliveryAddressId, comments);
 
 				if (order!= null && order.Id > 0)
 				{
@@ -69,6 +44,7 @@
 			catch(Exception ex)
 			{
 				SessionErrors.Add(ex);
+throw ex;
 			}
 		}
 	}

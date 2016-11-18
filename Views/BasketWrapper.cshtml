@@ -6,39 +6,55 @@
 
 @{
 	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
-	CBasketTotal basketTotal = SessionBasket.GetBasketTotal();
-
+	
 	bool reserveCreated = false;
 	CClientInfo info = SessionClient.GetClientInfo();
-	
-	info = SessionClient.GetClientInfo();
-	
-	if (!reserveCreated)
-	{
+	bool addressStage = false;
+
+		decimal total = 0;
+		decimal count = 0;
+		decimal deliveryCost = 0;
+			@foreach(int key in basket.Keys)
+			{
+				
+				if (key > 0)
+				{
+					decimal amount = basket[-key]*basket[key];
+					total += amount;
+					count++;
+				}
+			}
 		<div class="row cart">
 		  <div class="col-md-9">
-			@{ Html.RenderPartial("BasketContents", Model.Content,
-        new ViewDataDictionary(this.ViewData) {
-            { "param1", "something" },
-            { "param2", true }
-        });}
 			
+			@RenderBody()
 		  </div>
 		  <div class="col-md-3">
 		  <div class="order-form">
-			@{ Html.RenderPartial("OrderSummary");}
-
-				@if (basketTotal.Total > 0)
+			<h2>ORDER SUMMARY</h2>
+			  	@{
+					var grandTotal = total + deliveryCost;
+				}
+			  	<div class="summary">
+					<span class="count"><em>@count items</em> <i>&euro;  @total.ToString("### ### ##0")</i></span>
+					<span class="delivery"><em>Delivery</em> <i>&euro; @deliveryCost</i></span>
+						<span class="total"><em>TOTAL</em> <i>&euro; @grandTotal.ToString("### ### ##0")</i></span>
+					<span class="update"></span>
+				</div>
+				
+				
+				@if (total > 0)
 				{
 					var attributes = new Dictionary<string, object>();
-					attributes.Add("Action", "/tuneorder");
+					//attributes.Add("Action", "/OrderResult");
+attributes.Add("Action", "/basket");
 					attributes.Add("Id", "OrderForm");
 
 					using (Html.BeginForm(null, null, FormMethod.Post, attributes))
 					{
-						<input type="hidden" name="CreateReserve" value="true"/>
+						<input type="hidden" name="SelectAddress" value="true"/>
 
-						/*if (info == null)
+						if (info == null)
 						{
 							<div class="form-group">
 								 <label>Name:</label>
@@ -59,12 +75,11 @@
 							<div class="form-group">
 								 <label>@info.FirstName, specify order details:</label>
 							</div>
-						
+						}
 						<div class="form-group">
 							 <label>Address:</label>
 							  <input required type="text" name="Address" class="form-control" placeholder="Address" aria-describedby="basic-addon3">
-						</div>}*/
-
+						</div>
 
 						<!--div class="row">
 							<div class="input-group col-md-4">
@@ -76,12 +91,11 @@
 					}
 				}
 			</div>
-			@if (basketTotal.Total > 0)
+			@if (total > 0)
 			{
-				<input type="submit" class="place-order" value="PROCEED" />
+				<input type="submit" class="place-order" value="PLACE ORDER" />
 			}
 		  </div>
 		</div>
-
-	}
+		
 }

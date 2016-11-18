@@ -17,19 +17,30 @@
 		}
 	}
 }	
-	<a href="/Cabinet" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">@menuCaption <span class="glyphicon glyphicon-menu-down"></span></a>
-
-	<ul class="dropdown-menu" >
-	@if (loggedIn)
+	@if ((CurrentPage.Name.ToLower() != "tuneorder" && CurrentPage.Name.ToLower() != "cabinet") || loggedIn)
 	{
-		<nobr><li class="sub"><a href="/Cabinet">My Account</a></li></nobr>
-		<nobr><li class="sub"><a href="#" onclick="document.getElementById('logoutFromMenu').submit()">Logout</a></li></nobr>
+	if (loggedIn)
+	{
+		<a href="/Cabinet" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">@menuCaption <span class="glyphicon glyphicon-menu-down"></span></a>
 	}
 	else
 	{
-		<nobr><li class="sub"><a href="/Login">Login</a></li></nobr>
-		<nobr><li class="sub"><a href="/Registration">Registration</a></li></nobr>
-	}	
-	</ul>
+		<a href="#loginForm" data-form="loginForm" class="auth-types dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">@menuCaption <span class="glyphicon glyphicon-menu-down"></span></a>
+	}
+
+		<ul class="dropdown-menu" >
+		@if (loggedIn)
+		{
+			<nobr><li class="sub"><a href="/Cabinet">My Account</a></li></nobr>
+			<nobr><li class="sub"><a href="#" onclick="document.getElementById('logoutFromMenu').submit()">Logout</a></li></nobr>
+		}
+		else
+		{
+			<nobr><li class="sub"><a href="#loginForm" data-form="loginForm" class="auth-types">Login</a></li></nobr>
+			<nobr><li class="sub"><a href="#registerForm" data-form="registerForm" class="auth-types">Registration</a></li></nobr>
+			
+		}	
+		</ul>
+	}
 
 

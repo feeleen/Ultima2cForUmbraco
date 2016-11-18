@@ -12,4 +12,16 @@
 <!--script src="/assets/js/jquery-migrate-1.4.1.min.js"></script>
 <script src="/assets/js/jquery.prettyPhoto.js"></script>
 <script src="/assets/js/cusel.min.js"></script-->
+
+@{
+	if (CurrentPage.Name.ToLower() == "tuneorder")
+	{
+		string key = SessionBasket.GetGooglekey();
+		<script  src="https://maps.googleapis.com/maps/api/js?key=@key" type="text/javascript"></script>
+		<script src="/assets/js/maps.js"></script>
+	}
+	else
+	{
+	}
+}
     

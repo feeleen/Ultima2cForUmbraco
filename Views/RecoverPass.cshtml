@@ -1,8 +1,6 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
-
-
 @{
-//Html.RenderPartial("Heading");
+//	Layout = "Master.cshtml";
 }
 
 @{
@@ -11,40 +9,35 @@
 
 	if (IsPost)
 	{
-		if (Request.Form["submitLogin"] != null)
+		if (Request.Form["recoverPass"] != null)
 		{
 			string email = Request.Form["email"].Trim();
-			string pwd = Request.Form["pwd"].Trim();
 			
-			if (SessionClient.SignIn(email, pwd))
+			
+			if (UltimaWebService.SendClientPasswordChangeRequest(email))
 			{
-				Response.Redirect(Request.RawUrl);
+				problem = true;
+				problemMessage = "You've been sent an Email with password recovery instructions";
 			}
 			else
 			{
-				SessionErrors.Add("Failed to sign in user " + email);
 				problem = true;
-				problemMessage = "Failed to sign in user " + email;
+				problemMessage = "Failed to find user " + email + " in Database";
 			}
 			
-		}
-		else if (Request.Form["submitLogout"] != null)
-		{
-			SessionClient.SignOut();
-			Response.Redirect(Request.RawUrl);
 		}
 	}
 	
 	CClientInfo info = SessionClient.GetClientInfo();
 	
 	var attributes = new Dictionary<string, object>();
-	attributes.Add("class", "form-horizontal loginForm  authForm");
-	attributes.Add("id", "loginForm");
+	attributes.Add("class", "form-horizontal recoverPassForm  authForm");
+	attributes.Add("id", "recoverPassForm");
 	attributes.Add("action", "");
 
 	using (Html.BeginForm(null, null, FormMethod.Post, attributes))
 	{
-		<h2>SIGN IN</h2>
+		<h2>PASSWORD ASSISTANCY</h2>
 		<fieldset>
 		
 		<div class="form-group">
@@ -55,16 +48,9 @@
 		</div>
 
 		<div class="form-group">
-		  <label class="col-md-4 control-label" for="password">Password</label>
-		  <div class="col-md-4">
-			<input id="pwd" name="pwd" type="password" placeholder="" class="form-control input-md" required="">
-		  </div>
-		</div>
-
-		<div class="form-group">
 		  <label class="col-md-4 control-label" for="submit"></label>
 		  <div class="col-md-1">
-			<button id="submit" name="submitLogin" class="btn btn-info">Login</button>
+			<button id="submit" name="recoverPass" class="btn btn-info">Send Password</button>
 		  </div>
 		</div>
 		
@@ -73,22 +59,23 @@
 				<div class="form-group">
 				  <label class="col-md-4"></label>
 				  <div class="col-md-4">
-					<span data-form="loginForm" class="problem auth-types">@problemMessage</span>
+					<span data-form="recoverPassForm" class="problem auth-types">@problemMessage</span>
 				  </div>
 				</div>
 			}
 		}
+	
 		<div class="form-group">
 		  <label class="col-md-4"></label>
 		  <div class="col-md-4">
-			Or <a href="#registerForm" data-form="registerForm" class="auth-types">Register</a> if you don't have account
+			Or <a href="#loginForm" data-form="loginForm" class="auth-types">Login</a> if you're already a registered user
 		  </div>
 		</div>
 				
 		<div class="form-group">
 		  <label class="col-md-4"></label>
 		  <div class="col-md-4">
-			<a href="#recoverPassForm" data-form="recoverPassForm" class="auth-types">Forgot password?</a>
+			<a href="#registerForm" data-form="registerForm" class="auth-types">Registration</a>
 		  </div>
 		</div>
 
