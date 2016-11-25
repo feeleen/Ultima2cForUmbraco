@@ -26,8 +26,8 @@
 			<a href="/Goods" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">@item.Title <span class="glyphicon glyphicon-menu-down"></span></a>
 			<ul class="dropdown-menu">
 				@{
-					try
-					{
+					//try
+				//	{
 						List<CCategory> rootCats = UltimaWebService.GetRootCategories(1);
 						foreach (CCategory cat in rootCats)
 						{
@@ -37,8 +37,8 @@
 						{
 							<li class="sub">No categories</li>
 						}
-					}
-					catch{}
+				//	}
+				//	catch{}
 				}
 			</ul>
 		}
@@ -55,16 +55,9 @@
 	decimal totalCount = 0, totalAmount = 0;
 	string cartInactive = "";
 	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
-	foreach(int key in basket.Keys)
-	{
-		if (key > 0)
-		{
-			decimal itemCount = basket[key];
-			totalCount += itemCount;
-			totalAmount += basket[-key] * itemCount;
-		}
-	}
-	if (totalCount == 0)
+	CBasketTotal basketTotal = SessionBasket.GetBasketTotal();
+
+	if (basketTotal.ItemCount == 0)
 	{
 		cartInactive = "inactive";
 	}
@@ -77,12 +70,12 @@
 	<li class="dropdown">
 		<a href="/basket" class="dropdown-toggle" data-hover="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-delay="0">
 		<span class="glyphicon shopping-cart "></span> MyCart &nbsp;
-		<span class="badge cart-btn @cartInactive" >@totalCount</span> &nbsp;
-		<span class="badge cart-btn @cartInactive" >&euro; @totalAmount </span>&nbsp;&nbsp;
+		<span class="badge cart-btn @cartInactive" >@basketTotal.ItemCount</span> &nbsp;
+		<span class="badge cart-btn @cartInactive" >&euro; @basketTotal.Total </span>&nbsp;&nbsp;
 		<span class="glyphicon glyphicon-menu-down"></span></a>
 	  	<ul class="dropdown-menu basket-list">
 		@{
-			if (totalCount > 0) 
+			if (basketTotal.ItemCount > 0) 
 			{
 				foreach (int key in basket.Keys)
 				{
@@ -103,7 +96,7 @@
 					}
 				}
 				<li class="last">
-					<span class="price">&euro; @totalAmount</span>
+					<span class="price">&euro; @basketTotal.Total</span>
 					<a href="/basket">View MyCart</a>
 					<div class="clear"></div>
 				</li>

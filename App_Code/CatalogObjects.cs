@@ -153,6 +153,23 @@ public class CClientInfo
 	public string Phone { get; set; }
 }
 
+public class CBasketTotal
+{
+	public decimal Total { get; set; }
+	public decimal GrandTotal { get; set; }
+	public decimal ItemCount { get; set; }
+	public long DeliveryAddressId { get; set; }
+	public decimal DeliveryCost { get; set; }
+}
+
+public class CDeliveryAddress
+{
+	public int Id { get; set; }
+	public string Address { get; set; }
+	public decimal Latitude { get; set; }
+	public decimal Longitude { get; set; }
+}
+
 public class BoolValue
 {
 	public bool Exists { get; set; }
@@ -183,6 +200,20 @@ public class IdValue
 	public int Id { get; set; }
 }
 
+public class ValueValue
+{
+	public decimal Value { get; set; }
+}
+
+public class CReserveArticle
+{
+	public string Name { get; set; }
+	public int Id { get; set; }
+	public int Quantity { get; set; }
+	public decimal Amount { get; set; }
+	public decimal Price { get; set; }
+}
+
 public class CDocument
 {
 	public int Amount { get; set; }
@@ -198,6 +229,8 @@ public class CDocument
 	public DateTime TransactionDate { get; set; }
 	public int UsedBonusAmount { get; set; }
 	public int Version { get; set; }
+	public DeliveryInfo Delivery {get; set;}
+	public string Group { get; set; }
 }
 
 public class CDocuments

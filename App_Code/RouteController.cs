@@ -45,6 +45,29 @@ namespace Ultima.PluginControllers
 			}
 			return v;
 		}
+		
+		public ActionResult GetDocument(int id = -1)
+		{
+			var cabinetNodeID = WebConfigurationManager.AppSettings[InstallHelpers.CabinetNodeID];
+
+			var content = Umbraco.TypedContent(cabinetNodeID);
+			//if (content == null)
+		//		throw new System.Exception("Couldn't find any node with id = " + cabinetNodeID + ". Change app setting's " + InstallHelpers.CabinetNodeID + " value to correct ID of a Good content page)");
+
+			var renderModel = CreateRenderModel(content);
+			ViewResult v = View("Document", renderModel);
+			//v.ViewData["GoodID"] = id;
+			if (id > -1)
+			{
+				try
+				{
+					v.ViewData["good"] = "ddddd";//UltimaWebService.GetProductInfo(id);
+				}
+				catch { }
+			}
+			return v;
+		}
+
 
 		public ActionResult GetGoodPhoto(int id = -1)
 		{

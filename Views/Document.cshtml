@@ -1,0 +1,106 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+	Layout = "Master.cshtml";
+}
+
+
+
+@{
+	CClientInfo info = SessionClient.GetClientInfo();
+	if (info == null)
+	{
+		Response.Redirect("/cabinet");
+	}
+
+	int docID = Convert.ToInt32(HttpContext.Current.Request.Url.Segments.Last());
+
+	CDocument doc = UltimaWebService.GetDocument(docID);
+	List<CReserveArticle> articles = UltimaWebService.GetDocumentArticles(docID);
+	var deliveryAddresses = SessionClient.GetDeliveryAddresses(false);
+	string address = string.Empty;
+	if (doc.ObtainMethod == "delivery")
+	{
+		foreach (var deliveryAddress in deliveryAddresses)
+		{
+			if (deliveryAddress.Id == doc.Delivery.AddressId)
+			{
+				address = deliveryAddress.Address;
+			}
+		}
+	}
+}
+<div class="row">
+@{ Html.RenderPartial("CabinetHeader");}
+
+<div class="table-responsive col-md-8">
+		<div class="sort_block cabinet"><h1>@docID</h1> 
+		<div class="sort_panel">
+		</div>
+		</div>
+		@{
+			<a href="/cabinet/" class="order-det back">Back to orders</a>
+			<div class="upper">&nbsp;</div>
+			<div class="order-line">
+				<div class="order-cont">
+					<div class="order-chunk">
+						<div class="order-th">Order number</div>
+						<div>@docID</div>
+					</div>
+					<div class="order-chunk">
+						<div class="order-th">Order status</div>
+						<div >@doc.Group</div>
+					</div>
+					<div class="order-chunk">
+						<div class="order-th">Order date</div>
+						<div>@doc.CreationDate</div>
+					</div>
+					<div class="order-chunk">
+						<div class="order-th">Order total</div>
+						<div>&euro; @doc.Amount</div>
+					</div>
+					 @{
+						if (doc.ObtainMethod == "delivery")
+						{
+							<div class="order-chunk  lastch">
+								<div class="order-th">DeliveryAddress</div>
+								<div>@address</div>
+							</div>
+						}
+					}
+				</div>
+				<div class="hr">&nbsp;</div>
+				<table cellpadding="20" cellspacing="30" width="100%">
+				<tr>
+					<td class="order-th left">Product details</td>
+					<td  class="order-th">Qty</td>
+					<td  class="order-th">Price</td>
+					<td  class="order-th">Total</td>
+				</tr>
+				@foreach(CReserveArticle art in articles)
+				{
+					<tr>
+						<td style="text-align:left;width: 60%">@art.Name</td>
+						<td style="text-align:center;">@art.Quantity</td>
+						<td style="text-align:center; ">&euro; @art.Price</td>
+						<td style="text-align:center;">&euro; @art.Amount</td>
+					</tr>
+				}
+				@{
+					if (doc.ObtainMethod == "delivery")
+					{
+						<tr>
+							<td style="text-align:left;width: 60%">Delivery</td>
+							<td style="text-align:center;">&nbsp;</td>
+							<td style="text-align:center; ">&nbsp;</td>
+							<td style="text-align:center;">&euro; @doc.Delivery.Price</td>
+						</tr>
+					}
+				}
+				</table>
+				<div class="hr">&nbsp;</div>
+			</div>
+<a href="/cabinet/" class="order-det back">Back to orders</a>
+		}
+
+	</div>
+</div>

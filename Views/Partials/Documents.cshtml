@@ -1,0 +1,78 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
+@{
+	bool history = (int?)ViewData["history"] == 1;
+	string[] groups = (string[])ViewData["groups"];
+	CDocuments docs = null;
+	int pageSize = Request.QueryString["pageSize"] == null? 5 : Convert.ToInt32(Request.QueryString["pageSize"]);
+	int pageNo = Request.QueryString["pageNo"] == null? 1 : Convert.ToInt32(Request.QueryString["pageNo"]);
+	DateTime? fromDate = string.IsNullOrEmpty(Request.QueryString["fromDate"])? (DateTime?)null : Convert.ToDateTime(Request.QueryString["fromDate"].Replace("/","-"));
+	
+	DateTime? toDate = string.IsNullOrEmpty(Request.QueryString["toDate"])? (DateTime?)null : Convert.ToDateTime(Request.QueryString["toDate"].Replace("/","-"));
+
+	string fromDateStr = Request.QueryString["fromDate"];
+	string toDateStr = Request.QueryString["toDate"];
+
+	System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+	docs = UltimaWebService.GetDocuments(pageNo, pageSize, fromDate, toDate, groups);
+
+
+	<div class="table-responsive col-md-8">
+			<div class="sort_block cabinet"><h1>My orders@{if(pageSize==5) {<text> history</text>} }</h1> 
+			<div class="sort_panel">
+				<form method="get" id="sortsiz" >
+					@{
+						// here we keep all the parameters
+						var coll = HttpUtility.ParseQueryString(HttpContext.Current.Request.QueryString.ToString());
+						foreach (string key in coll)
+						{
+							List<string> use = new List<string> {"fromDate","toDate", "pageSize"};
+							if (!use.Contains(key))
+							{
+								<input type="hidden" name="@key" value="@coll[key]"/>
+							}
+						}
+					}
+				Date from: <input type="text" name="fromDate" id="datepicker" onChange="$('#sortsiz').submit();" value="@fromDateStr">
+	&nbsp;to: <input type="text" id="datepicker1" name="toDate" onChange="$('#sortsiz').submit();" value="@toDateStr">
+				Show:<select name="pageSize" onChange="$('#sortsiz').submit();">
+				<option @{if(pageSize==5) {<text>selected</text>} } value="5">5</option>
+				<option @{if(pageSize==1) {<text>selected</text>} } value="1">1</option>
+				<option @{if(pageSize==10) {<text>selected</text>} } value="10">10</option>
+				</select>
+
+				</form>
+			</div>
+			</div>
+				
+
+		@foreach(CDocument doc in docs.Documents)
+		{
+			<div class="order-line">
+				<div class="order-chunk">
+					<div class="order-th">Order number</div>
+					<div>@doc.Id</div>
+				</div>
+				<div class="order-chunk">
+					<div class="order-th">Order status</div>
+					<div >@doc.Group</div>
+				</div>
+				<div class="order-chunk">
+					<div class="order-th">Order date</div>
+					<div>@doc.CreationDate</div>
+				</div>
+				<div class="order-chunk">
+					<div class="order-th">Order total</div>
+					<div>&euro; @doc.Amount</div>
+				</div>
+				<div class="order-chunk ">
+					<a href="/cabinet/document/@doc.Id" class="order-det">View details</a>
+				</div>
+				
+			</div>
+		}
+
+		@{ Html.RenderPartial("Pager", new ViewDataDictionary { { "cabinet", docs } }); }
+		</div>
+	
+}

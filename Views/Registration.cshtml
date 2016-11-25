@@ -1,9 +1,9 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+
 @{
-	Layout = "Master.cshtml";
-}
-@{Html.RenderPartial("Heading");}
-@{
+	var problem = false;
+	var problemMessage = string.Empty;
+
 	if (IsPost)
 	{
 		try
@@ -15,7 +15,8 @@
 				
 				if (pwd != pwdrepeat)
 				{
-					<p>password doesn't match</p>
+					problem = true;
+					problemMessage = "password doesn't match";
 				}
 				string phone = Request["phone"];
 				string email = Request["email"];
@@ -23,17 +24,30 @@
 				string lastname = Request["lastname"];
 				string address = Request["address"];
 				
-				long id = UltimaWebService.CreateAgent( email,  firstname,  phone,  pwd, address, lastname);
-				
-				if (id > 0)
+				bool isClientEmailExists = UltimaWebService.IsClientExists(email);
+				@Html.Raw("Unable to create Agent " + isClientEmailExists.ToString());
+				if (!isClientEmailExists)
 				{
-					SessionClient.SignIn(email, pwd);
-					Response.Redirect("/Registration");
+					long id = UltimaWebService.CreateAgent( email,  firstname,  phone,  pwd, address, lastname);
+					
+					if (id > 0)
+					{
+						SessionClient.SignIn(email, pwd);
+						Response.Redirect(Request.RawUrl);
+					}
+					else
+					{
+						SessionTrace.Add("id <= 0");
+						problem = true;
+						problemMessage = "Failed to SIGN IN user " + email;
+					}
 				}
 				else
 				{
-					SessionTrace.Add("id <= 0");
+					problem = true;
+					problemMessage = "Customer with email " + email + " already exists";
 				}
+				
 			}
 		}
 		catch (Exception ex)
@@ -43,88 +57,112 @@
 	}
 	
 CClientInfo info = SessionClient.GetClientInfo();
-if (HttpContext.Current.User.Identity.IsAuthenticated && info != null)
+/*if (HttpContext.Current.User.Identity.IsAuthenticated && info != null)
 {
 	<p>Congratulations, <b>@info.FirstName</b>, you are registered now!</p>
 	<p>You can <a href="/">Continue shopping</a> or go to your <a href="/Basket">Cart</a></p>
 }
 else
-{
+{*/
 	var attributes = new Dictionary<string, object>();
-	attributes.Add("class", "form-horizontal");
+	attributes.Add("class", "form-horizontal registerForm authForm");
 	attributes.Add("id", "registerForm");
 	attributes.Add("action", "");
 
 	using (Html.BeginForm(null, null, FormMethod.Post, attributes))
 	{
+		<h2>CREATE ACCOUNT</h2>
+		<fieldset>
 
-<fieldset>
+		<div class="form-group">
+		  <label class="col-md-4 control-label" for="firstname">First Name</label>  
+		  <div class="col-md-4">
+		  <input id="firstname" name="firstname" type="text" placeholder="" class="form-control input-md" required="">
+		    
+		  </div>
+		</div>
 
-<div class="form-group">
-  <label class="col-md-4 control-label" for="firstname">First Name</label>  
-  <div class="col-md-4">
-  <input id="firstname" name="firstname" type="text" placeholder="" class="form-control input-md" required="">
-    
-  </div>
-</div>
+		<!-- Text input-->
+		<div class="form-group">
+		  <label class="col-md-4 control-label" for="lastname">Last Name</label>  
+		  <div class="col-md-4">
+		  <input id="lastname" name="lastname" type="text" placeholder="" class="form-control input-md" required="">
+		    
+		  </div>
+		</div>
 
-<!-- Text input-->
-<div class="form-group">
-  <label class="col-md-4 control-label" for="lastname">Last Name</label>  
-  <div class="col-md-4">
-  <input id="lastname" name="lastname" type="text" placeholder="" class="form-control input-md" required="">
-    
-  </div>
-</div>
+		<div class="form-group">
+		  <label class="col-md-4 control-label" for="phone">Phone</label>  
+		  <div class="col-md-4">
+		  <input id="phone" name="phone" type="text" placeholder="" class="form-control input-md">
+		    
+		  </div>
+		</div>
+		<!--<div class="form-group">
+		  <label class="col-md-4 control-label" for="address">Address</label>
+		  <div class="col-md-4">                     
+		    <textarea class="form-control" id="address" name="address"></textarea>
+		  </div>
+		</div>  -->
 
-<div class="form-group">
-  <label class="col-md-4 control-label" for="phone">Phone</label>  
-  <div class="col-md-4">
-  <input id="phone" name="phone" type="text" placeholder="" class="form-control input-md">
-    
-  </div>
-</div>
+		<div class="form-group">
+		  <label class="col-md-4 control-label" for="email">Email</label>  
+		  <div class="col-md-4">
+		  <input id="email" name="email" type="text" placeholder="" class="form-control input-md" required="">
+		    
+		  </div>
+		</div>
 
-<div class="form-group">
-  <label class="col-md-4 control-label" for="address">Address</label>
-  <div class="col-md-4">                     
-    <textarea class="form-control" id="address" name="address"></textarea>
-  </div>
-</div>
+		<div class="form-group">
+		  <label class="col-md-4 control-label" for="password">Password</label>
+		  <div class="col-md-4">
+		    <input id="password" name="password" type="password" placeholder="" class="form-control input-md" required="">
+		    
+		  </div>
+		</div>
 
-<div class="form-group">
-  <label class="col-md-4 control-label" for="email">Email</label>  
-  <div class="col-md-4">
-  <input id="email" name="email" type="text" placeholder="" class="form-control input-md" required="">
-    
-  </div>
-</div>
+		<div class="form-group">
+		  <label class="col-md-4 control-label" for="passwordrepeat">Repeat Password</label>
+		  <div class="col-md-4">
+		    <input id="passwordrepeat" name="passwordrepeat" type="password" placeholder="" class="form-control input-md" required="">
+		    
+		  </div>
+		</div>
 
-<div class="form-group">
-  <label class="col-md-4 control-label" for="password">Password</label>
-  <div class="col-md-4">
-    <input id="password" name="password" type="password" placeholder="" class="form-control input-md" required="">
-    
-  </div>
-</div>
+		<div class="form-group">
+		  <label class="col-md-4 control-label" for="submit"></label>
+		  <div class="col-md-4">
+		    <button id="submit" name="submitRegistration" class="btn btn-info">Register Me!</button>
+		  </div>
+		</div>
+		
+		@{if (problem)
+			{
+				<div class="form-group">
+				  <label class="col-md-4"></label>
+				  <div class="col-md-4">
+					<span data-form="registerForm" class="problem auth-types">@problemMessage</span>
+				  </div>
+				</div>
+			}
+		}
 
-<div class="form-group">
-  <label class="col-md-4 control-label" for="passwordrepeat">Repeat Password</label>
-  <div class="col-md-4">
-    <input id="passwordrepeat" name="passwordrepeat" type="password" placeholder="" class="form-control input-md" required="">
-    
-  </div>
-</div>
+		<div class="form-group">
+		  <label class="col-md-4"></label>
+		  <div class="col-md-4">
+			Or <a href="#loginForm" data-form="loginForm" class="auth-types">Login</a> if you're already a registered user
+		  </div>
+		</div>
+				
+		<div class="form-group">
+		  <label class="col-md-4"></label>
+		  <div class="col-md-4">
+				<a href="#recoverPassForm" data-form="recoverPassForm" class="auth-types">Forgot password?</a>
+		  </div>
+		</div>
 
-<div class="form-group">
-  <label class="col-md-4 control-label" for="submit"></label>
-  <div class="col-md-4">
-    <button id="submit" name="submitRegistration" class="btn btn-info">Register Me!</button>
-  </div>
-</div>
-
-</fieldset>
+		</fieldset>
 
 	}
-}
+//}
 }

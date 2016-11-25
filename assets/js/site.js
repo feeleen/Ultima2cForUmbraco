@@ -148,12 +148,50 @@ $(function() {
 	
 	$('select[name="pageSize"]').change(function(){
 		$('.sort_block form').submit()
-	})
+	});
 	
 	$('.clearall').click(function(){
 		window.location = window.location.pathname;
-	})
+	});
 	
+	
+	 $(".auth-types").each(function() {
+	 	$(this).delegate($(this), "click", function(ev) {
+	 		$(".overlayUser").show();
+	        ev.preventDefault();
+	        if ($(this).data("form")) {
+	        	var id = "#"+$(this).data("form");
+	        	
+	            $(id).show();
+	            $(id).parent().find("form.authForm:not("+id+")").each(function() {
+	 				$(this).hide();
+	 				
+	 			});
+	            return false;
+	        }
+		});
+	});
+	
+	$("form.authForm h2").each(function() {
+	 	$(this).delegate($(this), "click", function(ev) {
+	 		$(this).parent().parent().hide();
+		});
+	});
+	$(".auth-types.problem").each(function() {
+	 	$(this).trigger("click");
+	});
+	
+	$('#map_button_yes').click(function(){
+		$('#AddressForm').submit();
+	});
+	
+	$('.place-order.final').click(function(){
+		$('#deliveryComments').val($('#comments').val());
+		$('#OrderForm').submit();
+	});
+	
+	$( "#datepicker" ).datepicker();
+	$( "#datepicker1" ).datepicker();
 	/*
 	var params = {
 		changedEl: ".sort_panel select",

@@ -1,0 +1,84 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+CBasketTotal basketTotal = SessionBasket.GetBasketTotal();
+System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
+
+if (IsPost)
+{
+	try
+	{
+		if (HttpContext.Current.Request["DeleteItem"]!= null)
+		{
+			int delGoodId = Convert.ToInt32(HttpContext.Current.Request["DeleteItem"]);
+			SessionBasket.DeleteFromBasket(delGoodId);
+		}
+		if (HttpContext.Current.Request["UpdateItem"]!= null)
+		{
+			int updGoodId = Convert.ToInt32(HttpContext.Current.Request["UpdateItem"]);
+			decimal newQty = Convert.ToDecimal(HttpContext.Current.Request["NewQuantity"]);
+			if (basket.ContainsKey(updGoodId))
+			{
+				SessionBasket.UpdateBasketQuantity(updGoodId, newQty, basket[-updGoodId]);
+			}
+		}
+		if (HttpContext.Current.Request["CreateReserve"]!= null)
+		{
+			Server.Transfer("/OrderResult", true);
+		}
+	}
+	catch (HttpException ex)
+	{
+		@Html.Raw("Server Error (" + ex.GetHttpCode() + "): " + ex.Message);
+	}
+}
+
+
+	<table  class="table-hover" width="100%">
+				<thead>
+					<tr class="table-head">
+						<th>Product details</th>
+						<th>Qty</th>
+						<th>Price</th>
+						<th>Total</th>
+					</tr>
+				</thead>
+				<tbody>
+			@foreach(int key in basket.Keys)
+			{
+				
+				if (key > 0)
+				{
+					<tr class="separator"><td colspan="4"></td></tr>
+					decimal amount = basket[-key]*basket[key];
+					<tr class="cart-item">
+						<td scope="row">
+							<div class="image"><img class="card-img" src="/goodphoto/@key" /></div>	
+							<a class="name" href="/good/@key">@UltimaWebService.GetProductInfo(key, "Name")</a>
+							<span class="model"><i>Model</i>: @key</span> 
+						</td>
+						
+						<td>
+						@using (Html.BeginForm())
+						{
+							
+							<table class="input-group"><tr>
+								<input type="hidden" name="UpdateItem" value="@key"/>
+								<td><span class="delete"></span></td>
+								<td><span class="minus"></span></td>
+								<td><span class="input"><input type="text" name="NewQuantity" value="@basket[key]"/></span></td>
+								<td><span class="plus"></span></td>
+							</tr>	
+							</table>
+						}
+						</td>
+						<td>&euro; @basket[-key].ToString("### ### ##0")</td>
+						<td>&euro; @amount.ToString("### ### ##0")</td>
+
+					</tr>
+				}
+			}
+					
+
+				</tbody>
+			</table>
+}

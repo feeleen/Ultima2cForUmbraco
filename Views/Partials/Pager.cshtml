@@ -9,8 +9,18 @@
    
 @{
 	CCatalog catalog = (CCatalog)ViewData["catalog"];
-    if (catalog != null)
+	CDocuments docs = (CDocuments)ViewData["cabinet"];
+
+	var PagesOverall = 1;
+	if (catalog != null)
 	{
+		PagesOverall = catalog.PagesOverall;	
+	}
+	else if (docs != null)
+	{
+		int pageSize = Request.QueryString["pageSize"] == null? 5 : Convert.ToInt32(Request.QueryString["pageSize"]);
+		PagesOverall = (int)Math.Ceiling((decimal)docs.TotalRecords/pageSize);
+	}
 		int pg = 1;
 		if(Request.QueryString["pageNo"] != null) {
 			pg = int.Parse(Request.QueryString["pageNo"]);
@@ -23,13 +33,13 @@
 			start = (pg-5);
 		}
 		
-		int end = catalog.PagesOverall;
-		if ((pg + 5) < catalog.PagesOverall)
+		int end = PagesOverall;
+		if ((pg + 5) < PagesOverall)
 		{
 			end = pg+5;
 		}
 		
-		for (int k = start; k < end; k++  )
+		for (int k = start; k <= end; k++  )
 		{
 			if (pg == k)
 			{
@@ -46,7 +56,7 @@
 			}
 		}
 	}
-}
+
 <li>
       <a href="#" aria-label="Next">
         <span aria-hidden="true">&raquo;</span>

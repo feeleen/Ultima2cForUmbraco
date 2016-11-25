@@ -10,6 +10,15 @@ namespace Umbraco
 		public void OnApplicationStarted(UmbracoApplicationBase umbracoApplication, ApplicationContext applicationContext)
 		{
 			//Create a custom routes
+			RouteTable.Routes.MapRoute(
+				"",
+				"cabinet/document/{id}",
+				new
+				{
+					controller = "Route",
+					action = "GetDocument",
+					id = UrlParameter.Optional
+				});
 
 			RouteTable.Routes.MapRoute(
 				"",

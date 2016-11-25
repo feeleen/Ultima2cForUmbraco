@@ -1,0 +1,17 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+
+CBasketTotal basketTotal = SessionBasket.GetBasketTotal();
+System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
+
+<h2>ORDER SUMMARY</h2>
+
+<div class="summary">
+	<span class="count"><em>@basketTotal.ItemCount items</em> <i>&euro;  @basketTotal.Total.ToString("### ### ##0")</i></span>
+	<span class="delivery"><em>Delivery</em> <i>&euro; @basketTotal.DeliveryCost</i></span>
+		<span class="total"><em>TOTAL</em> <i>&euro; @basketTotal.GrandTotal.ToString("### ### ##0")</i></span>
+	<span class="update"></span>
+</div>				
+
+
+}

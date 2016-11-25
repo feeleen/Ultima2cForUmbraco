@@ -82,7 +82,7 @@
 							<input type="hidden" name="GoodID" value="@goodID"/>
 							<input type="hidden" name="AddQuantity" value="1"/>
 							<span class="tocart">
-								<input type="submit" name="submitAdd" value="Add to cart" />
+								<input type="submit" name="submitAdd" value="Add to cart" @{if(prod.Availability == "outofstock") {<text> disabled</text>}} />
 							</span>
 						}
 					</div>

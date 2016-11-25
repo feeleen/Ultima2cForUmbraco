@@ -3,122 +3,26 @@
 	Layout = "Master.cshtml";
 }
 
-@{ Html.RenderPartial("Heading"); }
 
-@{
-	if (IsPost && Request.Form["updateClientInfo"]!= null)		
-	{
-		try
-		{
-			UltimaWebService.UpdateClientInfoFromRequestParameters();
-		}
-		catch
-		{
-			<p>There was a server error, try again later</p>
-		}
-	}
-}
 
 @{
 	CClientInfo info = SessionClient.GetClientInfo();
 	if (info == null)
 	{
-		Response.Redirect("/Login");
+		Html.RenderPartial("Login");
+		Html.RenderPartial("Registration");
+		Html.RenderPartial("RecoverPass");
 	}
-	CDocuments docs = UltimaWebService.GetDocuments();	 
-}
-<div class="row">
-  <div class="table-responsive col-md-4">
-<h2>Your Details</h2>
-@{
-	string width = "col-md-8";
-	string widthLabel = "col-md-4";
-	var attributes = new Dictionary<string, object>();
-	attributes.Add("class", "form-horizontal");
-	attributes.Add("id", "updateInfoForm");
-	attributes.Add("action", "");
-	using (Html.BeginForm(null, null, FormMethod.Post, attributes))
+	else
 	{
+		var groups = new string[] { "reserves", "drafts", "shipping" };
+		<div class="row">
+			@{ Html.RenderPartial("CabinetHeader");}
 
-<fieldset>
-
-<div class="form-group">
-  <label class="@widthLabel control-label" for="firstname">First Name</label>  
-  <div class="@width">
-  <input id="firstname" name="firstname" type="text" placeholder="" 
-	  class="form-control input-md" required="" value="@info.FirstName">
-  </div>
-</div>
-
-<div class="form-group">
-  <label class="@widthLabel control-label" for="lastname">Last Name</label>  
-  <div class="@width">
-  <input id="lastname" name="lastname" type="text" placeholder="" 
-	  class="form-control input-md" required="" value="@info.LastName">
-  </div>
-</div>
-
-<div class="form-group">
-  <label class="@widthLabel control-label" for="phone">Phone</label>  
-  <div class="@width">
-  <input id="phone" name="phone" type="text" placeholder="" 
-	  class="form-control input-md" value="@info.Phone">
-  </div>
-</div>
-
-<div class="form-group">
-  <label class="@widthLabel control-label" for="address">Address</label>
-  <div class="@width">                     
-    <textarea class="form-control" id="address" name="address">-</textarea>
-  </div>
-</div>
-
-<div class="form-group">
-  <label class="@widthLabel control-label" for="email">Email</label>  
-  <div class="@width">
-  <input id="email" name="email" type="text" placeholder="" 
-	  class="form-control input-md" required="" value="@info.Email">
-  </div>
-</div>
-
-<!--div class="form-group">
-  <label class="@widthLabel control-label" for="password">Password</label>
-  <div class="@width">
-    <input id="password" name="password" type="password" placeholder="" class="form-control input-md" required="">
-  </div>
-</div-->
-
-<div class="form-group">
-  <label class="@widthLabel control-label" for="submit"></label>
-  <div class="@width">
-    <button id="submit" name="updateClientInfo" class="btn btn-info">Save</button>
-  </div>
-</div>
-
-</fieldset>
-
+			
+					@{ Html.RenderPartial("Documents", new ViewDataDictionary { { "groups", groups } }); }
+			
+		</div>
 	}
-}
-	</div>
 
-	<div class="table-responsive col-md-8">
-<h2>Your Orders</h2>
-<table class="table table-hover table-bordered">
-	<thead>
-		<tr>
-			<th>ID</th>
-			<th>Amount</th>
-			<th>CreationDate</th>
-		</tr>
-	</thead>
-@foreach(CDocument doc in docs.Documents)
-{
-	<tr>
-		<td>@doc.Id</td>
-		<td>@doc.Amount</td>
-		<td>@doc.CreationDate</td>
-		</tr>
 }
-</table>
-	</div>
-</div>

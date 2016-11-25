@@ -1,0 +1,176 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+    Layout = "Master.cshtml";
+}
+
+@{
+	System.Collections.Generic.Dictionary<int,Decimal> basket = SessionBasket.GetBasket();
+	CClientInfo info = SessionClient.GetClientInfo();
+	List<CDeliveryAddress> deliveryAddresses = new List<CDeliveryAddress>();
+
+	if (info != null )
+	{
+		deliveryAddresses = SessionClient.GetDeliveryAddresses(false);
+	}
+	
+	bool reserveCreated = false;
+	bool addressStage = true;
+	CBasketTotal basketTotal = SessionBasket.GetBasketTotal();
+        if(basketTotal.Total == 0)
+	{
+		Response.Redirect("/basket/");
+	}
+
+	if (basketTotal.DeliveryAddressId < 0 && deliveryAddresses.Count() > 0)
+	{
+		SessionBasket.SetDeliveryAddressId(deliveryAddresses[0].Id);
+		basketTotal = SessionBasket.GetBasketTotal();
+	}
+
+	string comments = "";
+	string addressSelect = "Select address";
+	
+
+	if (HttpContext.Current.Request["SelectAddress"]!= null)
+	{
+		addressStage = true;
+	}
+	
+	if (IsPost)
+	{
+		try
+		{
+
+			if (HttpContext.Current.Request["UpdateAddress"]!= null)
+			{
+				
+				decimal latitude = Convert.ToDecimal(HttpContext.Current.Request["lat"]);
+				decimal longitude = Convert.ToDecimal(HttpContext.Current.Request["lng"]);
+				long addressId = Convert.ToInt64(HttpContext.Current.Request["addressId"]);
+				string address = HttpContext.Current.Request["address"];
+				comments = HttpContext.Current.Request["comments"];
+				
+				if (addressId < 0)
+				{
+					try
+					{
+						addressId = UltimaWebService.CreateDeliveryAddress(address, latitude, longitude);
+						deliveryAddresses = SessionClient.GetDeliveryAddresses(true);
+					}
+					catch(Exception ex)
+					{
+						SessionErrors.Add(ex);
+	
+					}
+				}
+				if (addressId > 0)
+				{
+					SessionBasket.SetDeliveryAddressId(addressId);
+					basketTotal = SessionBasket.GetBasketTotal();
+				}
+				else
+				{
+					SessionBasket.SetDeliveryAddressId(addressId);
+					basketTotal = SessionBasket.GetBasketTotal();
+					addressSelect = "Sorry, we can't deliver to " + address + ". Please select another address";
+				}
+				
+			}
+			if (HttpContext.Current.Request["CrateReserve"]!= null)
+			{
+				Server.Transfer("/OrderResult", true);
+			}
+		}
+		catch (HttpException ex)
+		{
+			@Html.Raw("Server Error (" + ex.GetHttpCode() + "): " + ex.Message);
+		}
+	}
+
+<div class="row"><ol class="breadcrumb">
+	<li><a href="/basket/">Edit order</a></li>
+	<li><a href="/tuneorder/">Select address</a></li>	
+</ol>
+</div>
+		<div class="row cart">
+			  <div class="col-md-9">
+@{
+if (info == null)
+{
+	addressStage = false;
+	Html.RenderPartial("Login");
+	Html.RenderPartial("Registration");
+	Html.RenderPartial("RecoverPass");
+}
+
+
+	if (addressStage)
+	{
+			<span class="labelCart" >Please select delivery address on map</span>
+			<div class=" upper"><br /></div>
+			<div class="map_container">
+				
+				<div id="map_canvas" style="height: 400px; width: 400px"></div>
+					
+			</div>
+			<span class="labelCart">Delivery address:</span><br />
+			<span class="selected_address" id="selected_address">@addressSelect</span><br /><br /><br /><br /><br /><br />
+			<span class="labelCart">Comments to the order:</span>
+			<div class="buble-cont" id="buble-cont"><p>
+				Deliver to this address ? <br />
+				<strong>#address</strong><br/>
+				<input type="button" class="map_button yes" value="Yes" onclick="$('#AddressForm').submit();" />&nbsp;<input type="button" class="map_button no" value="No" onclick="infowindow.close()" />
+			</p></div>
+			var attributes = new Dictionary<string, object>();
+			attributes.Add("Action", "/tuneorder/");
+			attributes.Add("Id", "AddressForm");
+
+			using (Html.BeginForm(null, null, FormMethod.Post, attributes))
+			{
+				<input type="hidden" name="UpdateAddress" value="true"/>
+				<textarea rows="5" cols="40" name="comments" id="comments">@comments</textarea>
+				<input type="hidden" value="@basketTotal.DeliveryAddressId"  name="addressId" id="addressId" /><br />
+				<input type="hidden" value="" name="lat" id="lat" /><br />
+				<input type="hidden" value="" name="lng" id="lng" /><br />
+				<input type="hidden" value="" name="address" id="address" /><br />
+			}
+			
+			<ul class="addresses">
+
+			@foreach(CDeliveryAddress address in deliveryAddresses)
+			{
+				address.Latitude = Math.Round(address.Latitude, 6);
+				address.Longitude = Math.Round(address.Longitude, 6);
+				<li data-id="@address.Id" data-lat="@address.Latitude" data-lng="@address.Longitude">@address.Address</li>
+			}
+
+			</ul>
+
+	}
+}
+			</div>
+		  <div class="col-md-3">
+		  <div class="order-form">
+			@{ Html.RenderPartial("OrderSummary");}
+				@if (basketTotal.Total > 0)
+				{
+					var attributes = new Dictionary<string, object>();
+					attributes.Add("Action", "/OrderResult");
+					attributes.Add("Id", "OrderForm");
+
+					using (Html.BeginForm(null, null, FormMethod.Post, attributes))
+					{
+						<input type="hidden" name="CreateReserve" value="true"/>
+						<input type="hidden" name="comments" value="@comments" id="deliveryComments"/>
+					}
+				}
+			</div>
+			@if (basketTotal.Total > 0 && info != null && basketTotal.DeliveryAddressId > 0)
+			{
+				<input type="button" class="place-order final" value="PLACE ORDER" />
+			}
+		  </div>
+		</div>
+
+	
+}

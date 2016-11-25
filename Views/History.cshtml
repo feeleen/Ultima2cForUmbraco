@@ -1,0 +1,24 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+	Layout = "Master.cshtml";
+}
+
+
+
+@{
+	CClientInfo info = SessionClient.GetClientInfo();
+	if (info == null)
+	{
+		Response.Redirect("/cabinet");
+	}
+	else
+	{
+		var groups = new string[] { "shipped" };
+		<div class="row">
+			@{ Html.RenderPartial("CabinetHeader");}
+
+			@{ Html.RenderPartial("Documents", new ViewDataDictionary { {"history", 1}, { "groups", groups } }); }
+		</div>
+	}
+
+}
