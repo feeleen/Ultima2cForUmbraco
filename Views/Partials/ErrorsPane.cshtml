@@ -1,7 +1,7 @@
 ﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
 
 @{
-	if (true)//SessionErrors.Allowed)
+	if (SessionErrors.Allowed)
 	{
 		SessionErrors err = SessionErrors.Current;
 		if (err!= null)
