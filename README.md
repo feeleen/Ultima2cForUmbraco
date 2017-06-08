@@ -25,3 +25,28 @@ How to start:
   2. check web.config's Ultima.WebServiceURL setting for proper Ultimate2c WebServce URL and port!
 3. You're done! Open your site and use it
 
+Session loss
+
+Session data (basket contents, personal data) can get quickly lost due to default IIS settings
+(the session idle timeout and recycling).
+It's better to adjust them from the start:
+
+Go to IIS Manager
+On Window's server it's in the server Dashboard -> IIS -> Tools ->(IIS) Manager
+![IIS Manager](https://snag.gy/ozbTjh.jpg)
+
+On non-server windows' Run "inetmgr"
+
+Expand the list at your left 
+Select DefaultAppPool (if you haven't earlier selected a custom appPool for you site) -> RightClick ->Advanced Settings
+![DefaultAppPool](https://snag.gy/hIywle.jpg)
+
+Enhance Processor Model -> Idle Time-out (minutes)
+
+![Idle](https://snag.gy/P1pqV4.jpg)
+
+Down to Recycling
+It's unrecommended to completely turn off recycling as it may potentially consume all server resources.
+Your go is to limit the memory limit, after which the pool is recycled
+
+![Recycling](https://snag.gy/wAFZ0g.jpg)
