@@ -87,7 +87,7 @@ $(function() {
 		$(this).removeClass('error');
 	})
 	
-	$('input.place-order').click(function(){
+	$('input.place-order:not(.final)').click(function(){
 		if($('.order-form input[name="Name"]').val()=='') {
 			$('.order-form input[name="Name"]').addClass('error');
 			return false;
