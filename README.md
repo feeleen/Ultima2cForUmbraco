@@ -18,7 +18,7 @@ Umbraco is used as a front-end to show the data taken from Ultimate2c via rest a
 How to start:
 
 1. Prerequisites
-  - Ultimate2c version 5.6.0.0 and upper (see http://www.ultimatebusinessware.ru/2c/download/)
+  - Ultimate2c version 6.0.0.3 and upper (see http://www.ultimatebusinessware.ru/2c/download/)
   - fresh Umbraco 7.5.4 installation (with no starter kits installed!)
 2. Setup
   1. install package Ultima2cForUmbraco into umbraco, complete full steps of installation 
